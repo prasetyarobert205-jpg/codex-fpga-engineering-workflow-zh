@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0.0",
-  "package_version": "1.0.0",
+  "package_version": "1.0.1",
   "baseline": "sanitized-live-local-fpga-workflow-2026-08-28",
   "roles": {
     "count": 13,

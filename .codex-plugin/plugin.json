@@ -1,6 +1,6 @@
 {
   "name": "codex-fpga-engineering-workflow-zh",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "面向 FPGA/SoC FPGA 的全中文 Codex 多角色证据工程工作流：单一产品写入者、逐拍审核、CDC/RDC、STA、官方 IP、原生工具流与独立签核。",
   "author": {
     "name": "prasetyarobert205-jpg",
