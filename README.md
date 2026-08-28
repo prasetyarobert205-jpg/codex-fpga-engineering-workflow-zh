@@ -482,6 +482,41 @@ https://github.com/prasetyarobert205-jpg/codex-fpga-engineering-workflow-zh
 未运行的综合、STA、CDC/RDC 和上板结果标为 UNVERIFIED。
 ```
 
+## 推荐的 FPGA 工程目录
+
+为了让产品源码、厂商工程、仿真资产、正式输出和 Codex 临时文件彼此分开，可以采用下面的推荐结构：
+
+```text
+<fpga-project>/
+├─ document/                 # 需求、接口、寄存器和设计说明
+├─ project/
+│  ├─ rtl/                   # 产品 RTL
+│  ├─ ip/                    # 厂商 IP 配置和生成 recipe
+│  ├─ sdc/                   # 时钟、I/O 和时序约束
+│  ├─ par/                   # 厂商工程、综合/实现数据库和报告
+│  └─ script/                # 正式编译/构建入口和 Tcl/CLI
+├─ simulation/
+│  ├─ tb/case/               # TB、model、checker 和测试用例
+│  ├─ script/                # 仿真入口和 source list
+│  └─ work/                  # 仿真库、日志、WLF 和波形
+├─ linter/                   # lint 配置、black box 和结果
+├─ release/
+│  ├─ golden/                # 可选 golden image
+│  └─ output/                # 审核后的 bit/bin/mcs 和 manifest
+└─ codex_out/                # Codex 诊断、索引、临时构建和审查证据
+```
+
+最重要的存放边界：
+
+| 内容 | 推荐位置 |
+|---|---|
+| 正式综合、实现、时序报告 | `project/par/` |
+| 正式 ModelSim/Questa 库、日志和波形 | `simulation/work/` |
+| 审核后需要交付的产物 | `release/output/` |
+| Codex 临时诊断、索引、变体和 review packet | `codex_out/<run-id>/` |
+
+详细说明见：[FPGA 工程目录与文件存放位置](docs/project-layout.md)。已有成熟工程可以保留自己的目录，只要正式产品、正式输出和 Codex 临时文件边界清晰即可。
+
 ## 完整文档
 
 - [总体架构](docs/architecture.md)
@@ -489,6 +524,7 @@ https://github.com/prasetyarobert205-jpg/codex-fpga-engineering-workflow-zh
 - [项目优势](docs/advantages.md)
 - [安装指南](docs/installation.md)
 - [提示词与使用方法](docs/usage.md)
+- [FPGA 工程目录与文件存放位置](docs/project-layout.md)
 - [证据与安全边界](docs/safety-and-evidence.md)
 - [公开与私有数据边界](docs/public-private-boundary.md)
 
