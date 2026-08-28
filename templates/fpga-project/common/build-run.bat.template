@@ -1,0 +1,28 @@
+@echo off
+setlocal EnableExtensions
+set "SCRIPT_DIR=%~dp0"
+for %%I in ("%SCRIPT_DIR%..\..") do set "PROJECT_ROOT=%%~fI"
+call "%SCRIPT_DIR%setting.bat"
+if errorlevel 1 goto :FAIL
+set "ACTION=%~1"
+if "%ACTION%"=="" set "ACTION=compile"
+if /I not "%ACTION%"=="compile" if /I not "%ACTION%"=="build" if /I not "%ACTION%"=="clean" goto :FAIL
+set "RUN_DIR=%PROJECT_ROOT%\project\par"
+if not exist "%RUN_DIR%" mkdir "%RUN_DIR%"
+if errorlevel 1 goto :FAIL
+pushd "%RUN_DIR%"
+if errorlevel 1 goto :FAIL
+echo TOOL_ENV_FAIL: the __VENDOR__ native build Tcl or CLI recipe is not configured.
+echo Confirm the exact __TOOL__ version, target part, canonical project, and command.
+echo Keep the one selected vendor flow in project\script and create the real launcher directly in:
+echo   %RUN_DIR%
+echo Do not add project\par\vivado_project, project\par\build, or a random project container.
+popd
+set "RC=1"
+goto :DONE
+:FAIL
+set "RC=1"
+:DONE
+echo.
+pause
+exit /b %RC%

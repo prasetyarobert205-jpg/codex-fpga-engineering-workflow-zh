@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "findings-ledger.schema.json",
+  "title": "FPGA Findings Ledger",
+  "type": "object",
+  "required": ["schema_version", "task_id", "round", "findings"],
+  "properties": {
+    "schema_version": {"const": "0.3"},
+    "task_id": {"type": "string"},
+    "round": {"type": "integer", "minimum": 0, "maximum": 3},
+    "consecutive_no_progress_rounds": {"type": "integer", "minimum": 0, "maximum": 2},
+    "findings": {"type": "array", "items": {"type": "object", "required": ["id", "snapshot_id", "source_role", "severity", "status", "trigger", "evidence", "impact", "required_rechecks"], "properties": {
+      "id": {"type": "string"},
+      "snapshot_id": {"type": "string"},
+      "source_role": {"type": "string"},
+      "severity": {"enum": ["BLOCKER", "HIGH", "MEDIUM", "LOW"]},
+      "status": {"enum": ["OPEN", "FIXED_PENDING_REVIEW", "VERIFIED_CLOSED", "DUPLICATE", "DISPUTED", "NOT_APPLICABLE", "ACCEPTED_RISK"]},
+      "closed_by": {"type": ["string", "null"]},
+      "owner": {"type": ["string", "null"]},
+      "clock_domain": {"type": ["string", "null"]},
+      "trigger": {"type": "string"},
+      "evidence": {"type": "array", "items": {"type": "string"}},
+      "impact": {"type": "string"},
+      "required_fix": {"type": ["string", "null"]},
+      "required_rechecks": {"type": "array", "items": {"type": "string"}},
+      "first_seen_round": {"type": "integer", "minimum": 0},
+      "last_seen_round": {"type": "integer", "minimum": 0}
+    }, "allOf": [{"if": {"properties": {"status": {"const": "VERIFIED_CLOSED"}}}, "then": {"required": ["closed_by"], "properties": {"closed_by": {"type": "string", "minLength": 1}, "evidence": {"type": "array", "minItems": 1}, "required_rechecks": {"type": "array", "minItems": 1}}}}]}}
+  },
+  "additionalProperties": true
+}

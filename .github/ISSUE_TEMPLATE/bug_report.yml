@@ -1,0 +1,24 @@
+name: 缺陷报告
+description: 报告可以复现的打包、安装、角色、脚本或工作流缺陷
+title: "[Bug] "
+labels: [bug]
+body:
+  - type: textarea
+    id: environment
+    attributes:
+      label: 环境
+      description: Codex、PowerShell、操作系统和包版本；请删除密钥和私人路径。
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: 最小复现
+      description: 最少步骤、命令、预期结果、实际结果和去标识证据。
+    validations:
+      required: true
+  - type: textarea
+    id: safety
+    attributes:
+      label: 证据和安全影响
+      description: 是否影响单写入、CDC/RDC、STA、电气安全、验证独立性或发布签核？

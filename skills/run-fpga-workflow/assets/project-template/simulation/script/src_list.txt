@@ -1,0 +1,2 @@
+# Add RTL and TB paths relative to the actual simulation/work run directory.
+# Vendor IP simulation models are generated/exported by the selected official flow.

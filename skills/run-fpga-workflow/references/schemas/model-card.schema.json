@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "model-card.schema.json",
+  "title": "FPGA Verification Model Card",
+  "type": "object",
+  "required": ["schema_version", "model_name", "model_hash", "identity", "authoritative_sources", "signal_mapping", "timing_reset_error", "abstractions", "unsupported_behavior", "assumptions", "conformance_tests", "author", "independent_reviewer"],
+  "properties": {
+    "schema_version": {"const": "0.3"},
+    "model_name": {"type": "string"},
+    "model_version": {"type": "string"},
+    "model_hash": {"type": "string"},
+    "evidence_profile": {"enum": ["DIAGNOSTIC_SMOKE", "FUNCTIONAL_ACCEPTANCE", "SPECIALIST_ACCEPTANCE"]},
+    "identity": {"type": "object"},
+    "authoritative_sources": {"type": "array", "items": {"type": "object", "required": ["document", "version", "location"], "properties": {"document": {"type": "string"}, "version": {"type": "string"}, "location": {"type": "string"}}}},
+    "signal_mapping": {"type": "object"},
+    "timing_reset_error": {"type": "object"},
+    "abstractions": {"type": "array", "items": {"type": "string"}},
+    "unsupported_behavior": {"type": "array", "items": {"type": "string"}},
+    "assumptions": {"type": "array", "items": {"type": "string"}},
+    "conformance_tests": {"type": "array", "items": {"type": "string"}},
+    "author": {"type": "string"},
+    "independent_reviewer": {"type": "string"},
+    "independent_from_dut": {"type": "boolean"}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"evidence_profile": {"enum": ["FUNCTIONAL_ACCEPTANCE", "SPECIALIST_ACCEPTANCE"]}}, "required": ["evidence_profile"]},
+      "then": {
+        "required": ["independent_from_dut"],
+        "properties": {
+          "independent_from_dut": {"const": true},
+          "authoritative_sources": {"type": "array", "minItems": 1},
+          "conformance_tests": {"type": "array", "minItems": 1}
+        }
+      }
+    }
+  ],
+  "additionalProperties": true
+}

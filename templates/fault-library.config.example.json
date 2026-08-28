@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0.0",
+  "enabled": false,
+  "library_root": "",
+  "allowed_status": [
+    "ROOT_CAUSE_CONFIRMED",
+    "FIX_VERIFIED",
+    "BOARD_CONFIRMED",
+    "REUSABLE"
+  ]
+}

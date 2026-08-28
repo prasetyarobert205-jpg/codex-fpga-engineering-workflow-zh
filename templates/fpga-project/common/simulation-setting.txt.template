@@ -1,0 +1,4 @@
+# Canonical simulator settings. The confirmed vsim.do must source this file.
+set sim_top __SIMULATION_TOP__
+set default_case __DEFAULT_CASE__
+set default_seed 1

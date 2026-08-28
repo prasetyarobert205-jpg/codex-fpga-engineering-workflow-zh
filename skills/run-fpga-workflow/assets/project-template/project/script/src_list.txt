@@ -1,0 +1,2 @@
+# Add project-relative RTL and selected official IP configuration paths here.
+# Keep paths stable, unique, forward-slash, and verify them before build.

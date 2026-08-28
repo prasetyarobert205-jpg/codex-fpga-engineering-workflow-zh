@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "snapshot-manifest.schema.json",
+  "title": "FPGA Snapshot Manifest",
+  "type": "object",
+  "required": ["schema_version", "snapshot_id", "target", "source_list_hash", "files", "dirty_diff_hash"],
+  "properties": {
+    "schema_version": {"const": "0.3"},
+    "snapshot_id": {"type": "string", "minLength": 1},
+    "git_revision": {"type": ["string", "null"]},
+    "dirty_diff_hash": {"type": "string"},
+    "target": {"type": "object"},
+    "source_list_hash": {"type": "string"},
+    "defines": {"type": "array", "items": {"type": "string"}},
+    "include_dirs": {"type": "array", "items": {"type": "string"}},
+    "parameters": {"type": "object"},
+    "files": {"type": "array", "items": {"type": "object", "required": ["path", "sha256"], "properties": {"path": {"type": "string"}, "sha256": {"type": "string"}}}},
+    "constraints": {"type": "array", "items": {"type": "object"}},
+    "tool_view": {"type": "object"}
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ip-proof-packet.schema.json",
+  "title": "FPGA Official IP Proof Packet",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "ip_id",
+    "vendor",
+    "tool_version",
+    "target_part",
+    "generation_method",
+    "official_source",
+    "contract",
+    "evidence_status"
+  ],
+  "properties": {
+    "schema_version": {"const": "0.3"},
+    "ip_id": {"type": "string", "minLength": 1},
+    "vendor": {"type": "string"},
+    "tool_version": {"type": "string"},
+    "target_part": {"type": "string"},
+    "vlnv_or_type": {"type": "string"},
+    "module_name": {"type": "string"},
+    "generation_method": {
+      "enum": [
+        "REUSE_MANAGED_IP",
+        "INCREMENTAL_REGENERATE",
+        "STAGE_AND_IMPORT",
+        "OFFICIAL_TCL_CLI",
+        "OFFICIAL_GUI_ONCE"
+      ]
+    },
+    "official_source": {
+      "type": "object",
+      "properties": {
+        "configuration_path": {"type": "string"},
+        "recipe_path": {"type": "string"},
+        "documentation": {"type": "array", "items": {"type": "string"}},
+        "source_view_owner": {"type": "string"}
+      },
+      "additionalProperties": true
+    },
+    "contract": {
+      "type": "object",
+      "properties": {
+        "ports_and_widths": {"type": "array", "items": {"type": "object"}},
+        "parameters": {"type": "object"},
+        "latency": {},
+        "reset": {},
+        "busy_and_flow_control": {},
+        "mode": {"type": "string"}
+      },
+      "additionalProperties": true
+    },
+    "output_products": {"type": "array", "items": {"type": "string"}},
+    "ooc_synthesis": {"type": "object"},
+    "constraints": {"type": "object"},
+    "simulation": {
+      "type": "object",
+      "properties": {
+        "model": {"type": "string"},
+        "library": {"type": "string"},
+        "defines": {"type": "array", "items": {"type": "string"}},
+        "include_dirs": {"type": "array", "items": {"type": "string"}},
+        "known_limitations": {"type": "array", "items": {"type": "string"}}
+      },
+      "additionalProperties": true
+    },
+    "reopen_check": {"type": "object"},
+    "upgrade_delta": {"type": "array", "items": {"type": "string"}},
+    "evidence_status": {
+      "enum": ["DISCOVERY_ONLY", "PREPARED", "ACCEPTED", "UNVERIFIED", "FAILED"]
+    },
+    "unknowns": {"type": "array", "items": {"type": "string"}}
+  },
+  "additionalProperties": true
+}

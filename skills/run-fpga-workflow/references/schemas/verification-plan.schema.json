@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "verification-plan.schema.json",
+  "title": "FPGA Verification Plan",
+  "type": "object",
+  "required": ["schema_version", "snapshot_id", "traceability", "model_independence", "positive_tests", "negative_canaries", "uncovered"],
+  "properties": {
+    "schema_version": {"const": "0.3"},
+    "snapshot_id": {"type": "string"},
+    "evidence_profile": {"enum": ["DIAGNOSTIC_SMOKE", "FUNCTIONAL_ACCEPTANCE", "SPECIALIST_ACCEPTANCE"]},
+    "traceability": {"type": "array", "items": {"type": "object", "required": ["requirement", "test", "checker"], "properties": {"requirement": {"type": "string"}, "test": {"type": "string"}, "checker": {"type": "string"}, "cover": {"type": ["string", "null"]}}}},
+    "model_independence": {"type": "array", "items": {"type": "object"}},
+    "positive_tests": {"type": "array", "items": {"type": "string"}},
+    "negative_canaries": {"type": "array", "items": {"type": "string"}},
+    "parameters": {"type": "object"},
+    "seeds": {"type": "array", "items": {"type": ["integer", "string"]}},
+    "uncovered": {"type": "array", "items": {"type": "string"}}
+  },
+  "additionalProperties": true
+}

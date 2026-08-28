@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "impact-manifest.schema.json",
+  "title": "FPGA Impact Manifest",
+  "type": "object",
+  "required": ["schema_version", "snapshot_id", "primary_clock_domain", "input_boundary", "output_boundary", "changed_units", "coupled_signals", "partition_status"],
+  "properties": {
+    "schema_version": {"const": "0.3"},
+    "snapshot_id": {"type": "string"},
+    "primary_clock_domain": {"type": "string"},
+    "reset_domains": {"type": "array", "items": {"type": "string"}},
+    "input_boundary": {"type": "array", "items": {"type": "string"}},
+    "output_boundary": {"type": "array", "items": {"type": "string"}},
+    "changed_units": {"type": "array", "items": {"type": "string"}},
+    "producers": {"type": "array", "items": {"type": "string"}},
+    "consumers": {"type": "array", "items": {"type": "string"}},
+    "coupled_signals": {"type": "array", "items": {"type": "string"}},
+    "shared_resources": {"type": "array", "items": {"type": "string"}},
+    "relevant_tests": {"type": "array", "items": {"type": "string"}},
+    "relevant_constraints": {"type": "array", "items": {"type": "string"}},
+    "partition_status": {"enum": ["BOUNDED", "NEEDS_PARTITION"]},
+    "partition_reason": {"type": ["string", "null"]}
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,15 @@
+codex_out/
+project/par/*.runs/
+project/par/*.cache/
+project/par/*.gen/
+project/par/*.hw/
+project/par/*.ip_inputs/
+project/par/*.ip_user_files/
+project/par/*.sim/
+project/par/*.srcs/
+project/par/.Xil/
+project/par/*.tmp/
+simulation/work/
+simulation/*.wlf
+simulation/*.log
+linter/report_lint/

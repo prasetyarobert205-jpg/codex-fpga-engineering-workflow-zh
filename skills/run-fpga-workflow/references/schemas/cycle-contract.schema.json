@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "cycle-contract.schema.json",
+  "title": "FPGA Cycle Contract",
+  "type": "object",
+  "required": ["schema_version", "snapshot_id", "clock_domain", "sampling_edge", "input_accept", "output_complete", "latency", "throughput", "alignment"],
+  "properties": {
+    "schema_version": {"const": "0.3"},
+    "snapshot_id": {"type": "string"},
+    "clock_domain": {"type": "string"},
+    "sampling_edge": {"enum": ["posedge", "negedge"]},
+    "input_accept": {"type": "string"},
+    "output_complete": {"type": "string"},
+    "latency": {"type": "object", "required": ["kind"], "properties": {"kind": {"enum": ["fixed", "range", "data_dependent"]}, "cycles": {"type": "integer", "minimum": 0}, "minimum": {"type": "integer", "minimum": 0}, "maximum": {"type": "integer", "minimum": 0}}},
+    "throughput": {"type": "string"},
+    "stall": {"type": "string"},
+    "bubble": {"type": "string"},
+    "flush": {"type": "string"},
+    "abort": {"type": "string"},
+    "reset": {"type": "string"},
+    "error": {"type": "string"},
+    "alignment": {"type": "array", "items": {"type": "array", "items": {"type": "string"}}}
+  },
+  "allOf": [
+    {"if": {"properties": {"latency": {"properties": {"kind": {"const": "fixed"}}}}}, "then": {"properties": {"latency": {"required": ["kind", "cycles"]}}}},
+    {"if": {"properties": {"latency": {"properties": {"kind": {"const": "range"}}}}}, "then": {"properties": {"latency": {"required": ["kind", "minimum", "maximum"]}}}}
+  ],
+  "additionalProperties": true
+}

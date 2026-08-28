@@ -1,0 +1,40 @@
+name: 中文 FPGA 工作流验证
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: 验证角色、Skill、schema、脚本和公开内容
+        shell: pwsh
+        run: ./scripts/validate-package.ps1
+      - name: Smoke 测试标准工程脚手架
+        shell: pwsh
+        run: |
+          $fixture = Join-Path $env:RUNNER_TEMP 'fpga-scaffold-fixture'
+          ./scripts/new-fpga-project.ps1 -Destination $fixture -ProjectName fixture -TopModule top -Vendor XILINX
+          [IO.File]::WriteAllText((Join-Path $fixture 'project/par/fixture.xpr'), 'fixture')
+          [IO.File]::WriteAllText((Join-Path $fixture 'project/rtl/top.sv'), 'module top(input logic clk); endmodule')
+          $detection = ./scripts/detect-vendor.ps1 -ProjectRoot $fixture
+          $lists = ./scripts/update-filelists.ps1 -ProjectRoot $fixture -Vendor XILINX
+          if ($detection.status -ne 'DETECTED' -or $detection.vendor -ne 'XILINX') { throw '厂商识别 smoke 失败。' }
+          if ($lists.product_source_count -ne 1) { throw 'Filelist smoke 失败。' }
+          $projectScript = Join-Path $fixture 'project/script'
+          foreach ($requiredEntry in @('run.bat', 'setting.bat', 'src_list.txt')) {
+            if (-not (Test-Path (Join-Path $projectScript $requiredEntry))) { throw "缺少正式 build 入口：$requiredEntry" }
+          }
+          if (@(Get-ChildItem $projectScript -Filter 'build_*.ps1').Count -ne 0) { throw '生成了废弃 PowerShell build adapter。' }
+      - name: Smoke 测试项目级安装与哈希核对
+        shell: pwsh
+        run: |
+          $installTarget = Join-Path $env:RUNNER_TEMP 'fpga-workflow-install-fixture'
+          New-Item -ItemType Directory -Path $installTarget -Force | Out-Null
+          ./scripts/install.ps1 -Scope Project -ProjectPath $installTarget
+          ./scripts/verify-install.ps1 -Scope Project -ProjectPath $installTarget

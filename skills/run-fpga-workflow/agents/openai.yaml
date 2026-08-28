@@ -1,0 +1,8 @@
+interface:
+  display_name: "FPGA 证据工程工作流"
+  short_description: "单一产品写入者、多专项只读审核、逐拍证据与独立签核"
+  default_prompt: "使用 $run-fpga-workflow 处理当前 FPGA 任务。先冻结工程身份、动态任务与 snapshot，只路由必要角色；正式 build 输出保存在 project/par，正式仿真输出保存在 simulation/work，Codex 诊断保存在 codex_out；逐拍审核角色保持 Shadow，除非当前任务明确需要。"
+  icon_small: "./assets/icon.svg"
+  icon_large: "./assets/icon.svg"
+policy:
+  allow_implicit_invocation: true

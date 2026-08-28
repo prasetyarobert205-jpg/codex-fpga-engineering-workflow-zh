@@ -1,0 +1,9 @@
+{
+  "schema_version": "1.0.0",
+  "enabled": false,
+  "private_library_root": "",
+  "minimum_status": "REUSABLE",
+  "query_output_relative": "codex_out/<run-id>/knowledge/matches.json",
+  "copy_source_documents": false,
+  "notes": "只在本机填写私有路径。匹配只是调查候选，不能替代当前工程证据。"
+}

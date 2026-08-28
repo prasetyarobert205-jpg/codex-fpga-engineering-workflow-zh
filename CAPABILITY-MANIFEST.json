@@ -1,0 +1,57 @@
+{
+  "schema_version": "1.0.0",
+  "package_version": "1.0.0",
+  "baseline": "sanitized-live-local-fpga-workflow-2026-08-28",
+  "roles": {
+    "count": 13,
+    "strict_read_only": [
+      "fpga_architect",
+      "fpga_temporal_evidence_reviewer",
+      "fpga_cdc_timing_reviewer",
+      "fpga_interface_architect",
+      "fpga_vendor_platform_reviewer",
+      "fpga_board_validation_engineer",
+      "fpga_reviewer",
+      "system_architect",
+      "hardware_datasheet",
+      "independent_reviewer"
+    ],
+    "conditional_sequential_writers": [
+      "fpga_engineer",
+      "verification_engineer",
+      "embedded_engineer"
+    ]
+  },
+  "workflow_modes": ["ANALYZE", "QUICK", "FULL"],
+  "evidence_profiles": ["DIAGNOSTIC_SMOKE", "FUNCTIONAL_ACCEPTANCE", "SPECIALIST_ACCEPTANCE"],
+  "claim_stages": [
+    "PREFLIGHT", "COMPILE", "SIM_SMOKE", "FUNCTIONAL_SIM", "SYNTHESIS",
+    "IMPLEMENTATION_QOR", "TIMING_CLOSURE", "FORMAL", "RELEASE", "BOARD_PREP"
+  ],
+  "fpga_engineer_modes": [
+    "RTL_IMPLEMENTATION", "IP_INTEGRATION", "BUILD_FLOW",
+    "PHYSICAL_IMPLEMENTATION", "RELEASE_PACKAGING"
+  ],
+  "supported_vendor_detection": ["XILINX", "PANGO", "ANLOGIC"],
+  "skill_contract": {
+    "files": 45,
+    "schemas": 11,
+    "deterministic_scripts": 6,
+    "single_product_writer": true,
+    "verification_author_cannot_self_sign": true,
+    "temporal_reviewer_shadow_by_default": true,
+    "maximum_automatic_repair_rounds": 3,
+    "power_default": "NOT_APPLICABLE",
+    "formal_build_root": "project/par",
+    "formal_simulation_root": "simulation/work",
+    "codex_diagnostic_root": "codex_out"
+  },
+  "public_sanitization": {
+    "private_improvement_history_included": false,
+    "private_fault_documents_included": false,
+    "machine_specific_paths_included": false,
+    "project_or_customer_facts_included": false,
+    "blank_public_evidence_ledger_included": true,
+    "private_fault_schema_config_query_included": true
+  }
+}

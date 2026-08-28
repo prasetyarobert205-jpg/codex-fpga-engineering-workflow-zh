@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "simulation-evidence.schema.json",
+  "title": "FPGA Simulation Evidence",
+  "type": "object",
+  "required": ["schema_version", "snapshot_id", "classification", "requirements", "checker_results", "negative_canaries", "scoreboard_drained", "manual_waveform_consistent"],
+  "properties": {
+    "schema_version": {"const": "0.3"},
+    "snapshot_id": {"type": "string"},
+    "classification": {"enum": ["DUT_FAIL", "TESTBENCH_FAIL", "REFERENCE_MODEL_FAIL", "ASSERTION_FAIL", "SCRIPT_PATH_FAIL", "COMPILE_ELAB_FAIL", "TOOL_ENV_FAIL", "VENDOR_LIBRARY_FAIL", "TIMEOUT_HANG", "INCONCLUSIVE", "DIAGNOSTIC_ONLY", "SIMULATION_PASS"]},
+    "evidence_profile": {"enum": ["DIAGNOSTIC_SMOKE", "FUNCTIONAL_ACCEPTANCE"]},
+    "requirements": {"type": "array", "items": {"type": "object"}},
+    "transactions": {"type": "array", "items": {"type": "object"}},
+    "checker_results": {"type": "array", "items": {"type": "object"}},
+    "negative_canaries": {"type": "array", "items": {"type": "object", "required": ["name", "detected"], "properties": {"name": {"type": "string"}, "detected": {"type": "boolean"}}}},
+    "scoreboard_drained": {"type": "boolean"},
+    "xz_policy": {"type": "string"},
+    "manual_waveform_consistent": {"type": "boolean"},
+    "first_failure": {"type": ["object", "null"]},
+    "proof_packets": {"type": "array", "items": {"type": "string"}}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"classification": {"const": "SIMULATION_PASS"}}, "required": ["classification"]},
+      "then": {
+        "required": ["evidence_profile", "xz_policy", "proof_packets"],
+        "properties": {
+          "evidence_profile": {"const": "FUNCTIONAL_ACCEPTANCE"},
+          "requirements": {"type": "array", "minItems": 1, "items": {"type": "object", "required": ["id", "source"], "properties": {"id": {"type": "string", "minLength": 1}, "source": {"type": "string", "minLength": 1}}}},
+          "checker_results": {"type": "array", "minItems": 1, "items": {"type": "object", "required": ["checker", "requirement_id", "passed"], "properties": {"checker": {"type": "string", "minLength": 1}, "requirement_id": {"type": "string", "minLength": 1}, "passed": {"const": true}}}},
+          "negative_canaries": {"type": "array", "minItems": 1, "items": {"type": "object", "required": ["name", "detected"], "properties": {"name": {"type": "string", "minLength": 1}, "detected": {"const": true}}}},
+          "scoreboard_drained": {"const": true},
+          "manual_waveform_consistent": {"const": true},
+          "xz_policy": {"type": "string", "minLength": 1},
+          "proof_packets": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"classification": {"const": "DIAGNOSTIC_ONLY"}}, "required": ["classification"]},
+      "then": {"required": ["evidence_profile"], "properties": {"evidence_profile": {"const": "DIAGNOSTIC_SMOKE"}}}
+    }
+  ],
+  "additionalProperties": true
+}

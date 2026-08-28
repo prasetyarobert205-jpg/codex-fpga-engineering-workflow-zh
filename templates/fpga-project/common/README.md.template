@@ -1,0 +1,30 @@
+# __PROJECT_NAME__
+
+标准 FPGA 工程脚手架：**__VENDOR__ / __TOOL__ __TOOL_VERSION__**。稳定身份位于 `AGENTS.md`；每个用户请求通过动态 task delta 更新。实现或签核前必须记录真实 clock、reset、interface、constraint 和 acceptance evidence。
+
+## 一键入口
+
+- `project/script/run.bat`：调用已确认原生 build adapter；无参数默认 compile/synthesis checkpoint。
+- `simulation/script/run.bat`：调用已确认 simulator；无参数默认 GUI，`batch` 用于自动运行。
+- `linter/script/run.bat`：调用真实配置的 lint 工具，未配置则 fail closed。
+
+`project/script` 只保留入口 BAT、`setting.bat`、`src_list.txt` 和一个厂商 Tcl/CLI。`simulation/script` 默认只保留 `run.bat`、`setting.txt`、`src_list.txt`、`vsim.do`。导出脚本、`modelsim.ini`、`.Xil`、库、日志和波形归 `simulation/work`。正式桌面入口不依赖 Codex 私有 PowerShell。
+
+占位入口会 fail closed，直到准确工具命令、工程入口、simulator、官方库和 IP recipe 被确认。缺少工具、库、source、case 或 target 保持 `UNVERIFIED`，不静默替代。
+
+正式厂商数据库、日志和报告归 `project/par`；正式 ModelSim/Questa export、work library、日志和波形归 `simulation/work`；Codex 实验和 review packet 归 `codex_out`；通过项目定义审核后才把 release candidate 晋级到 `release/output`。
+
+已确认 adapter 必须创建一个直接位于 `project/par/__PROJECT_NAME__.xpr|.pds|.al` 的真实 launcher。额外 `project/par/vivado_project`、`project/par/build` 或随机容器不属于标准结构；脚手架不会在 target recipe 未知时伪造 launcher。
+
+## 目录
+
+```text
+document/
+project/{rtl,sdc,par,script}/
+simulation/{tb/case,script,work}/
+linter/script/
+release/output/
+codex_out/
+```
+
+`project/ip`、`linter/lint_bb`、`release/golden` 只在请求时创建。禁止 `project2`、`par2`、`script2`。

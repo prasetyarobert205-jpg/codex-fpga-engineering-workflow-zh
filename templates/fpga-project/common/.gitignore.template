@@ -1,0 +1,10 @@
+codex_out/
+simulation/work/
+simulation/waves/
+linter/report_lint/
+*.wlf
+*.jou
+*.log
+.Xil/
+*.runs/
+*.cache/

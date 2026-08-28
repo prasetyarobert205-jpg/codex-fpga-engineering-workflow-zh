@@ -1,0 +1,26 @@
+name: 功能建议
+description: 提出有证据支持的 FPGA 工作流改进
+title: "[Feature] "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: 工程问题
+      description: 描述缺口、范围，以及当前角色为什么不能可靠处理。
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: 证据与反例
+      description: 提供去标识来源、独立案例、风险和验证方法。
+    validations:
+      required: true
+  - type: checkboxes
+    id: boundaries
+    attributes:
+      label: 公开边界
+      options:
+        - label: 我没有提交密钥、专有 RTL、客户数据、私人路径或项目专属电气事实。
+          required: true

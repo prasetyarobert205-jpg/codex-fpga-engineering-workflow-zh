@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "run-manifest.schema.json",
+  "title": "FPGA Tool Run Manifest",
+  "type": "object",
+  "required": ["schema_version", "run_id", "snapshot_id", "classification", "command", "cwd", "tool", "target", "exit_code", "artifacts"],
+  "properties": {
+    "schema_version": {"const": "0.3"},
+    "run_id": {"type": "string"},
+    "snapshot_id": {"type": "string"},
+    "classification": {"type": "string"},
+    "evidence_profile": {"enum": ["DIAGNOSTIC_SMOKE", "FUNCTIONAL_ACCEPTANCE", "SPECIALIST_ACCEPTANCE"]},
+    "command": {"type": "array", "items": {"type": "string"}},
+    "cwd": {"type": "string"},
+    "tool": {"type": "object", "required": ["name", "version"], "properties": {"name": {"type": "string"}, "version": {"type": "string"}}},
+    "target": {"type": "object"},
+    "defines": {"type": "array", "items": {"type": "string"}},
+    "parameters": {"type": "object"},
+    "case": {"type": ["string", "null"]},
+    "seed": {"type": ["integer", "string", "null"]},
+    "tests_discovered": {"type": "integer", "minimum": 0},
+    "tests_executed": {"type": "integer", "minimum": 0},
+    "assertions_enabled": {"type": "boolean"},
+    "exit_code": {"type": "integer"},
+    "artifacts": {"type": "array", "items": {"type": "string"}}
+  },
+  "additionalProperties": true
+}

@@ -1,0 +1,147 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "task-contract.schema.json",
+  "title": "FPGA Task Contract",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "task_id",
+    "mode",
+    "scope",
+    "non_goals",
+    "target",
+    "requirements",
+    "acceptance_evidence",
+    "role_routing"
+  ],
+  "properties": {
+    "schema_version": {"const": "0.3"},
+    "task_id": {"type": "string", "minLength": 1},
+    "baseline_task_id": {"type": "string"},
+    "mode": {"enum": ["ANALYZE", "QUICK", "FULL"]},
+    "evidence_profile": {
+      "enum": ["DIAGNOSTIC_SMOKE", "FUNCTIONAL_ACCEPTANCE", "SPECIALIST_ACCEPTANCE"]
+    },
+    "claim_stage": {
+      "enum": [
+        "PREFLIGHT",
+        "COMPILE",
+        "SIM_SMOKE",
+        "FUNCTIONAL_SIM",
+        "SYNTHESIS",
+        "IMPLEMENTATION_QOR",
+        "TIMING_CLOSURE",
+        "FORMAL",
+        "RELEASE",
+        "BOARD_PREP"
+      ]
+    },
+    "requested_claim": {"type": "string"},
+    "project_identity": {
+      "type": "object",
+      "properties": {
+        "project_root": {"type": "string"},
+        "canonical_project_entry": {"type": "string"},
+        "vendor": {"type": "string"},
+        "tool": {"type": "string"},
+        "tool_version": {"type": "string"},
+        "part": {"type": "string"},
+        "product_top": {"type": "string"},
+        "simulation_top": {"type": "string"},
+        "build_entry": {"type": "string"},
+        "simulation_entry": {"type": "string"},
+        "lint_entry": {"type": "string"}
+      },
+      "additionalProperties": true
+    },
+    "current_task": {
+      "type": "array",
+      "items": {"type": "string"}
+    },
+    "task_delta": {
+      "type": "object",
+      "properties": {
+        "relation": {"enum": ["INITIAL", "SUPPLEMENTS", "SUPERSEDES", "EXPANDS", "NARROWS"]},
+        "adds": {"type": "array", "items": {"type": "string"}},
+        "removes": {"type": "array", "items": {"type": "string"}},
+        "supersedes": {"type": "array", "items": {"type": "string"}}
+      },
+      "additionalProperties": false
+    },
+    "authorization": {
+      "type": "object",
+      "properties": {
+        "write_product": {"type": "boolean"},
+        "write_constraints": {"type": "boolean"},
+        "write_verification": {"type": "boolean"},
+        "run_formal_entrypoints": {"type": "boolean"},
+        "clean_or_overwrite": {"type": "boolean"},
+        "regenerate_ip": {"type": "boolean"},
+        "run_implementation": {"type": "boolean"},
+        "generate_release": {"type": "boolean"},
+        "external_publish": {"type": "boolean"}
+      },
+      "additionalProperties": false
+    },
+    "protected_work": {
+      "type": "array",
+      "items": {"type": "string"}
+    },
+    "board_boundary": {
+      "type": "object",
+      "properties": {
+        "in_scope": {"type": "boolean"},
+        "offline_artifacts_only": {"type": "boolean"},
+        "physical_actions_by_user": {"type": "boolean"}
+      },
+      "additionalProperties": true
+    },
+    "scope": {"type": "array", "items": {"type": "string"}},
+    "non_goals": {"type": "array", "items": {"type": "string"}},
+    "immutable_boundaries": {"type": "array", "items": {"type": "string"}},
+    "target": {
+      "type": "object",
+      "required": ["vendor", "top"],
+      "properties": {
+        "vendor": {"type": "string"},
+        "top": {"type": "string"},
+        "part": {"type": "string"},
+        "canonical_project_entry": {"type": "string"},
+        "tool": {"type": "string"},
+        "tool_version": {"type": "string"}
+      },
+      "additionalProperties": true
+    },
+    "clocks": {"type": "array", "items": {"type": "object"}},
+    "resets": {"type": "array", "items": {"type": "object"}},
+    "requirements": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "text"],
+        "properties": {
+          "id": {"type": "string"},
+          "text": {"type": "string"}
+        },
+        "additionalProperties": true
+      }
+    },
+    "acceptance_evidence": {"type": "array", "items": {"type": "string"}},
+    "role_routing": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["role", "reason"],
+        "properties": {
+          "role": {"type": "string"},
+          "mode": {"type": "string"},
+          "reason": {"type": "string"},
+          "shadow": {"type": "boolean"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "unknowns": {"type": "array", "items": {"type": "string"}}
+  },
+  "additionalProperties": true
+}

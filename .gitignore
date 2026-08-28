@@ -1,0 +1,17 @@
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+out/
+codex_out/
+.Xil/
+simulation/work/
+project/par/*.runs/
+project/par/*.cache/
+project/par/*.gen/
+project/par/*.srcs/
+project/par/*.sim/
+.idea/
+.vscode/
+install-manifest.json
+*.backup-*
