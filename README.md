@@ -482,9 +482,9 @@ https://github.com/prasetyarobert205-jpg/codex-fpga-engineering-workflow-zh
 未运行的综合、STA、CDC/RDC 和上板结果标为 UNVERIFIED。
 ```
 
-## 推荐的 FPGA 工程目录
+## FPGA 正式工程标准目录结构
 
-为了让产品源码、厂商工程、仿真资产、正式输出和 Codex 临时文件彼此分开，可以采用下面的推荐结构：
+本工作流新建和正式整理的 FPGA 工程统一使用以下标准目录结构，用于分开产品源码、厂商工程、仿真资产、正式输出和 Codex 临时文件：
 
 ```text
 <fpga-project>/
@@ -508,14 +508,14 @@ https://github.com/prasetyarobert205-jpg/codex-fpga-engineering-workflow-zh
 
 最重要的存放边界：
 
-| 内容 | 推荐位置 |
+| 内容 | 存放位置 |
 |---|---|
 | 正式综合、实现、时序报告 | `project/par/` |
 | 正式 ModelSim/Questa 库、日志和波形 | `simulation/work/` |
 | 审核后需要交付的产物 | `release/output/` |
 | Codex 临时诊断、索引、变体和 review packet | `codex_out/<run-id>/` |
 
-详细说明见：[FPGA 工程目录与文件存放位置](docs/project-layout.md)。已有成熟工程可以保留自己的目录，只要正式产品、正式输出和 Codex 临时文件边界清晰即可。
+详细说明见：[FPGA 工程目录与文件存放位置](docs/project-layout.md)。只有外部旧工程在只读分析或导入阶段可以暂时保持原布局；进入正式整理阶段后，应使用本标准目录结构。
 
 ## 完整文档
 
