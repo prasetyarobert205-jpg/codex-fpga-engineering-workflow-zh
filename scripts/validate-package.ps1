@@ -10,10 +10,11 @@ function Add-CheckError([string]$Message) { $script:errors.Add($Message) }
 function Get-PortablePath([string]$Path) { return ([IO.Path]::GetRelativePath($root, $Path) -replace '\\', '/') }
 
 $required = @(
-    '.codex-plugin/plugin.json', 'README.md', 'AGENTS.md', 'LICENSE', 'VERSION', 'CAPABILITY-MANIFEST.json',
+    '.codex-plugin/plugin.json', 'README.md', 'AGENTS.md', 'LICENSE', 'THIRD_PARTY-NOTICES.md', 'VERSION', 'CAPABILITY-MANIFEST.json',
     'CHANGELOG.md', 'COMPATIBILITY.md', 'CONTRIBUTING.md', 'SECURITY.md', 'assets/hero.svg',
     'docs/README.md', 'docs/architecture.md', 'docs/advantages.md', 'docs/roles.md',
     'docs/installation.md', 'docs/usage.md', 'docs/safety-and-evidence.md', 'docs/public-private-boundary.md',
+    'docs/waveform-observation.md',
     'docs/capability-equivalence.md',
     'templates/AGENTS.fpga.md', 'templates/fault-library.config.example.json',
     'skills/run-fpga-workflow/SKILL.md', 'skills/run-fpga-workflow/agents/openai.yaml',
@@ -22,6 +23,7 @@ $required = @(
     'skills/run-fpga-workflow/references/task-profiles.md',
     'skills/run-fpga-workflow/references/temporal-evidence-review.md',
     'skills/run-fpga-workflow/references/simulation-evidence.md',
+    'skills/run-fpga-workflow/references/waveform-observation.md',
     'skills/run-fpga-workflow/references/project-layout-and-toolflow.md',
     'skills/run-fpga-workflow/references/project-identity-and-task-delta.md',
     'skills/run-fpga-workflow/references/ip-integration.md',
@@ -46,7 +48,12 @@ $required = @(
     'templates/fpga-project/common/vsim.do.template',
     'templates/fpga-project/common/lint-run.bat.template',
     'templates/fpga-project/common/setting.bat.template',
-    '.github/workflows/validate.yml'
+    '.github/workflows/validate.yml',
+    'integrations/wave-mcp/README.md', 'integrations/wave-mcp/query_adapter.py',
+    'integrations/wave-mcp/test_query_adapter.py', 'integrations/wave-mcp/validate_environment.py',
+    'integrations/wave-mcp/environment.example.json', 'integrations/wave-mcp/tested-environment.json',
+    'integrations/wave-mcp/requirements.txt', 'integrations/wave-mcp/requirements-tested.txt',
+    'integrations/wave-mcp/LICENSE.wave-mcp'
 )
 
 foreach ($rel in $required) {
@@ -103,7 +110,7 @@ if ($null -ne $capability) {
     if ($capability.roles.count -ne 13 -or @($capability.roles.strict_read_only).Count -ne 10 -or @($capability.roles.conditional_sequential_writers).Count -ne 3) {
         Add-CheckError '能力清单角色权限计数不正确。'
     }
-    if ($capability.skill_contract.files -ne 45 -or $capability.skill_contract.schemas -ne 11 -or $capability.skill_contract.deterministic_scripts -ne 6) {
+    if ($capability.skill_contract.files -ne 46 -or $capability.skill_contract.schemas -ne 11 -or $capability.skill_contract.deterministic_scripts -ne 6) {
         Add-CheckError '能力清单 Skill 文件、schema 或脚本计数不正确。'
     }
 }
@@ -111,7 +118,7 @@ if ($null -ne $capability) {
 $skillText = Get-Content -LiteralPath (Join-Path $root 'skills\run-fpga-workflow\SKILL.md') -Raw
 foreach ($reference in @(
     'references/task-profiles.md','references/artifact-contracts.md','references/temporal-evidence-review.md',
-    'references/simulation-evidence.md','references/project-layout-and-toolflow.md',
+    'references/simulation-evidence.md','references/waveform-observation.md','references/project-layout-and-toolflow.md',
     'references/project-identity-and-task-delta.md','references/ip-integration.md',
     'references/physical-implementation.md','references/private-fault-library.md',
     'references/improvement-evidence.md'
@@ -131,6 +138,76 @@ if ($schemaFiles.Count -ne 11) { Add-CheckError "应有 11 个 JSON Schema，实
 foreach ($schema in $schemaFiles) {
     try { $null = Get-Content -LiteralPath $schema.FullName -Raw -Encoding UTF8 | ConvertFrom-Json }
     catch { Add-CheckError "无效 JSON Schema：$($schema.Name)" }
+}
+
+$simulationSchema = Join-Path $root 'skills\run-fpga-workflow\references\schemas\simulation-evidence.schema.json'
+function Test-SimulationSchema([hashtable]$Document) {
+    try { return Test-Json -Json ($Document | ConvertTo-Json -Depth 12 -Compress) -SchemaFile $simulationSchema -ErrorAction SilentlyContinue }
+    catch { return $false }
+}
+$diagNoWave = @{
+    schema_version='0.3'; snapshot_id='s1'; classification='DIAGNOSTIC_ONLY'; evidence_profile='DIAGNOSTIC_SMOKE'
+    requirements=@(); checker_results=@(); negative_canaries=@(); scoreboard_drained=$false
+}
+if (-not (Test-SimulationSchema $diagNoWave)) { Add-CheckError 'DIAGNOSTIC_ONLY 无波形工件应当合法。' }
+$functionalBase = @{
+    schema_version='0.3'; snapshot_id='s1'; classification='SIMULATION_PASS'; evidence_profile='FUNCTIONAL_ACCEPTANCE'
+    requirements=@(@{id='R1';source='spec'}); checker_results=@(@{checker='scoreboard';requirement_id='R1';passed=$true})
+    negative_canaries=@(@{name='late';detected=$true}); scoreboard_drained=$true; xz_policy='strict'; proof_packets=@('proof.json')
+}
+foreach ($state in @('NOT_APPLICABLE','CONSISTENT')) {
+    $doc = $functionalBase.Clone(); $doc.waveform_consistency = $state
+    if (-not (Test-SimulationSchema $doc)) { Add-CheckError "合法 waveform_consistency 被拒绝：$state" }
+}
+$diagMixed = $diagNoWave.Clone(); $diagMixed.waveform_consistency = 'INCONCLUSIVE'; $diagMixed.manual_waveform_consistent = $false
+if (Test-SimulationSchema $diagMixed) { Add-CheckError '非 PASS 工件的新旧 waveform 字段也必须互斥。' }
+
+$evidenceValidator = Join-Path $root 'scripts\validate-simulation-evidence.ps1'
+$evidenceFixtureRoot = Join-Path ([IO.Path]::GetTempPath()) ("fpga-simulation-evidence-" + [guid]::NewGuid().ToString('N'))
+try {
+    New-Item -ItemType Directory -Path $evidenceFixtureRoot -Force | Out-Null
+    $diagnosticFixture = [ordered]@{
+        schema_version='0.3'; run_id='diag1'; snapshot_id='diag-s1'; evidence_profile='DIAGNOSTIC_SMOKE'; classification='DIAGNOSTIC_ONLY'
+        compile_exit_code=0; elaboration_exit_code=0; run_exit_code=0
+        requirements=@(); checker_results=@(); negative_canaries=@(); scoreboard_drained=$false
+    }
+    $diagnosticPath = Join-Path $evidenceFixtureRoot 'diagnostic-evidence.json'
+    [IO.File]::WriteAllText($diagnosticPath, (($diagnosticFixture | ConvertTo-Json -Depth 12) + [Environment]::NewLine), [Text.UTF8Encoding]::new($false))
+    try { $null = & $evidenceValidator -EvidencePath $diagnosticPath -ExpectedSnapshotId diag-s1 }
+    catch { Add-CheckError "最小 DIAGNOSTIC_ONLY 被正式 validator 过度拒绝：$($_.Exception.Message)" }
+    [IO.File]::WriteAllText((Join-Path $evidenceFixtureRoot 'proof.json'), '{}', [Text.UTF8Encoding]::new($false))
+    $evidenceFixture = [ordered]@{
+        schema_version='0.3'; run_id='r1'; snapshot_id='s1'; evidence_profile='FUNCTIONAL_ACCEPTANCE'; classification='SIMULATION_PASS'
+        compile_exit_code=0; elaboration_exit_code=0; run_exit_code=0; tests_discovered=1; tests_executed=1
+        requirements=@(@{id='R1';source='spec'}); checker_results=@(@{checker='scoreboard';requirement_id='R1';passed=$true})
+        scoreboard_drained=$true; comparisons=@(@{cycle=1;passed=$true}); negative_canaries=@(@{name='late';detected=$true})
+        xz_policy='strict'; proof_packets=@('proof.json'); waveform_consistency='CONSISTENT'
+    }
+    $evidencePath = Join-Path $evidenceFixtureRoot 'simulation-evidence.json'
+    [IO.File]::WriteAllText($evidencePath, (($evidenceFixture | ConvertTo-Json -Depth 12) + [Environment]::NewLine), [Text.UTF8Encoding]::new($false))
+    try { $null = & $evidenceValidator -EvidencePath $evidencePath -ExpectedSnapshotId s1 }
+    catch { Add-CheckError "canonical proof_packets 未同时通过 schema 与正式 validator：$($_.Exception.Message)" }
+    Remove-Item -LiteralPath (Join-Path $evidenceFixtureRoot 'proof.json') -Force
+    $missingProofRejected = $false
+    try { $null = & $evidenceValidator -EvidencePath $evidencePath -ExpectedSnapshotId s1 }
+    catch { $missingProofRejected = $true }
+    if (-not $missingProofRejected) { Add-CheckError '正式 validator 未拒绝缺失的 proof_packets 工件。' }
+} finally {
+    if (Test-Path -LiteralPath $evidenceFixtureRoot) { Remove-Item -LiteralPath $evidenceFixtureRoot -Recurse -Force }
+}
+foreach ($state in @('CONTRADICTORY','INCONCLUSIVE')) {
+    $doc = $functionalBase.Clone(); $doc.waveform_consistency = $state
+    if (Test-SimulationSchema $doc) { Add-CheckError "不允许支持 PASS 的 waveform_consistency 被接受：$state" }
+    $doc.manual_waveform_consistent = $true
+    if (Test-SimulationSchema $doc) { Add-CheckError "新旧 waveform 字段冲突被接受：$state + legacy true" }
+}
+$legacy = $functionalBase.Clone(); $legacy.manual_waveform_consistent = $true
+if (-not (Test-SimulationSchema $legacy)) { Add-CheckError 'Legacy manual_waveform_consistent=true 应保持兼容。' }
+foreach ($state in @('NOT_APPLICABLE','CONSISTENT')) {
+    foreach ($legacyValue in @($false,$true)) {
+        $doc = $functionalBase.Clone(); $doc.waveform_consistency = $state; $doc.manual_waveform_consistent = $legacyValue
+        if (Test-SimulationSchema $doc) { Add-CheckError "新旧 waveform 字段必须互斥：$state + legacy $legacyValue" }
+    }
 }
 
 $parseTargets = Get-ChildItem -LiteralPath $root -Recurse -File | Where-Object { $_.Extension -in @('.ps1','.psd1') }
@@ -168,9 +245,38 @@ if ($verification -notmatch '不得.*自签|不能.*自签') { Add-CheckError '�
 $improvement = Get-Content -LiteralPath (Join-Path $root 'skills\run-fpga-workflow\references\improvement-evidence.md') -Raw
 if ($improvement -match '(?i)C:\\Users\\|D:\\|86158|backup-20\d{6}|历史“已通过”状态\s*：') { Add-CheckError '公开改进账本疑似包含本机历史或绝对路径。' }
 
+$waveIntegration = Join-Path $root 'integrations\wave-mcp'
+try { $testedWave = Get-Content -LiteralPath (Join-Path $waveIntegration 'tested-environment.json') -Raw -Encoding UTF8 | ConvertFrom-Json }
+catch { Add-CheckError 'tested-environment.json 不是有效 JSON。'; $testedWave = $null }
+if ($null -ne $testedWave) {
+    if ($testedWave.wave_mcp.version -ne '0.1.1' -or $testedWave.scope -ne 'ONE_PROJECT_DIAGNOSTIC_SMOKE') { Add-CheckError 'wave-mcp 实测环境版本或 scope 不正确。' }
+    if ($testedWave.privacy.absolute_machine_paths_included -ne $false -or $testedWave.privacy.project_or_customer_paths_included -ne $false) { Add-CheckError 'wave-mcp 实测环境隐私声明不正确。' }
+    if ($testedWave.wave_mcp.package_tree.file_count -ne 19 -or $testedWave.wave_mcp.package_tree.tree_algorithm -ne 'sha256(join(entries, LF))') { Add-CheckError 'wave-mcp package tree 的公开复算合同不完整。' }
+    if ($testedWave.wave_mcp.direct_dependencies.mcp -ne '2.1.1' -or $testedWave.wave_mcp.direct_dependencies.pylibfst -ne '0.2.1' -or $testedWave.wave_mcp.direct_dependencies.pyslang -ne '11.0.0') { Add-CheckError 'wave-mcp 实测直接依赖版本不完整。' }
+}
+$waveRequirements = (Get-Content -LiteralPath (Join-Path $waveIntegration 'requirements.txt') -Raw -Encoding UTF8).Trim()
+if ($waveRequirements -ne 'wave-mcp==0.1.1') { Add-CheckError 'wave-mcp 依赖未锁定到实际验证版本 0.1.1。' }
+$testedRequirements = @(Get-Content -LiteralPath (Join-Path $waveIntegration 'requirements-tested.txt') -Encoding UTF8 | Where-Object { $_ -and -not $_.StartsWith('#') })
+if (($testedRequirements -join "`n") -ne "wave-mcp==0.1.1`nmcp==2.1.1`npylibfst==0.2.1`npyslang==11.0.0") { Add-CheckError 'wave-mcp 重现实测依赖组合不匹配。' }
+$waveAdapter = Get-Content -LiteralPath (Join-Path $waveIntegration 'query_adapter.py') -Raw -Encoding UTF8
+foreach ($token in @('open_session','close_session','signal_info','signal_value_at','signal_values_in_range','transition_cap + 1','input_wave_sha256','normalize_window_start','OBSERVATION_ONLY','DIAGNOSTIC_ONLY')) {
+    if ($waveAdapter -notmatch [regex]::Escape($token)) { Add-CheckError "wave-mcp adapter 缺少合同：$token" }
+}
+$workflowText = Get-Content -LiteralPath (Join-Path $root '.github\workflows\validate.yml') -Raw -Encoding UTF8
+foreach ($token in @('py_compile','validate_environment.py','test_query_adapter.py','query_adapter.py --help')) {
+    if ($workflowText -notmatch [regex]::Escape($token)) { Add-CheckError "GitHub CI 缺少 Python 集成检查：$token" }
+}
+$waveLicense = Get-Content -LiteralPath (Join-Path $waveIntegration 'LICENSE.wave-mcp') -Raw -Encoding UTF8
+if ($waveLicense -notmatch 'Copyright \(C\) 2026 Tencent' -or $waveLicense -notmatch 'MIT') { Add-CheckError 'wave-mcp 第三方许可声明不完整。' }
+$wavePublicText = @(
+    Get-Content -LiteralPath (Join-Path $waveIntegration 'README.md') -Raw -Encoding UTF8
+    Get-Content -LiteralPath (Join-Path $waveIntegration 'tested-environment.json') -Raw -Encoding UTF8
+) -join "`n"
+if ($wavePublicText -match '(?i)[A-Z]:\\|/mnt/[a-z]/|C:\\Users\\|D:\\PDS') { Add-CheckError 'wave-mcp 公开文档或实测清单包含机器/项目绝对路径。' }
+
 $allTextFiles = Get-ChildItem -LiteralPath $root -File -Recurse | Where-Object {
-    ($_.Extension -in @('.md','.toml','.json','.yaml','.yml','.ps1','.psd1','.svg','.txt','.template','.bat','.do') -or
-    $_.Name -in @('LICENSE','VERSION','.gitignore','.gitattributes')) -and $_.FullName -ne $PSCommandPath
+    ($_.Extension -in @('.md','.toml','.json','.yaml','.yml','.ps1','.psd1','.py','.svg','.txt','.template','.bat','.do') -or
+    ($_.Name -like 'LICENSE*') -or $_.Name -in @('VERSION','.gitignore','.gitattributes')) -and $_.FullName -ne $PSCommandPath
 }
 foreach ($file in $allTextFiles) {
     try { $content = [IO.File]::ReadAllText($file.FullName, [Text.UTF8Encoding]::new($false, $true)) }
@@ -199,4 +305,4 @@ if ($errors.Count -gt 0) {
     throw "包验证失败，共 $($errors.Count) 项。"
 }
 
-Write-Host "包验证通过：版本 $version；13 个角色（10 只读、3 条件写入）；11 个 schema；完整中文 Skill/references；确定性脚本、原生 BAT/DO 模板、UTF-8、隐私和公开内容检查全部通过。"
+Write-Host "包验证通过：版本 $version；13 个角色（10 只读、3 条件写入）；46 个 Skill 文件、11 个 schema、6 个确定性 Skill 脚本；中文波形观察与 wave-mcp 可选集成、原生 BAT/DO 模板、UTF-8、隐私和公开内容检查全部通过。"

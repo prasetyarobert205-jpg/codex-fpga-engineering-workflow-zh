@@ -11,6 +11,7 @@
 - Xilinx/Pango/Anlogic 的通用识别与 fail-closed 规则；
 - 公开官方资料支持的通用原则；
 - 去标识且证据闭环的工作流改进。
+- 去除绝对路径、项目名和用户信息后的第三方工具版本/hash、API 使用面与环境模板。
 
 ## 必须留在本机或项目内
 
@@ -22,6 +23,9 @@
 - 密钥、token、账号和凭据；
 - 未完成根因闭环的一次性 workaround；
 - 某个旧 snapshot 的“已通过”状态。
+- 实际 Python/WSL venv、完整第三方源码副本、转换器二进制和机器本地环境清单。
+
+公开 `tested-environment.json` 只能描述可复现能力边界，例如 Python/wave-mcp 版本、实现 hash、使用过的 API 和未验证项；真实的工具根、发行版路径、项目路径和可执行文件位置必须写入用户自己的 `environment.local.json`，并由 `.gitignore` 排除。
 
 ## 为什么公开仓库不复制本机 improvement evidence
 

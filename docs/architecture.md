@@ -60,6 +60,26 @@ flowchart TD
     RESULT --> FAIL[FAIL]
 ```
 
+## 波形观察是工具能力，不是新的角色体系
+
+wave-mcp 或其他波形查询器不会增加第 14 个角色，也不会把原来的专属 FPGA 角色拆成两套。它位于现有职责链中：
+
+```text
+verification_engineer
+→ 需求、TB、独立 model、checker、expected
+
+项目级波形 adapter
+→ 只读取 observed values 和 query receipts
+
+fpga_temporal_evidence_reviewer
+→ first-failure、逐拍对齐和因果证据只读复核
+
+fpga_reviewer
+→ 集成最终结论
+```
+
+因此 13 个角色的名称、权限和单一产品写入者合同保持不变；波形能力通过共享 Skill/reference 被按需调用。具体 adapter 和机器环境留在本地配置，不进入角色 prompt。
+
 ## 稳定工程身份与动态任务
 
 工程中相对稳定的事实放入 `project_identity`：

@@ -31,6 +31,10 @@ RTL 方面：使用项目指定的 HDL 和可综合子集；明确位宽、符�
 
 验证严格度按结论用途分层，不把正式发布门禁机械套到所有小任务。路径/工具诊断、compile/elaboration 检查和 smoke run 使用 `DIAGNOSTIC_SMOKE`，只证明对应阶段运行，不强制独立 reference model、scoreboard、coverage 或 negative canary，也不得升级为 `SIMULATION_PASS`。只有仿真结果被用作功能接受时才启用 `FUNCTIONAL_ACCEPTANCE`；formal、CDC/RDC、STA、电气或发布结论按需启用 `SPECIALIST_ACCEPTANCE`。与当前修改和声明无关的专项检查不默认阻塞任务。
 
+波形观察是按需证据增强，只在用户/验证计划明确要求、当前 checker/log/assertion 矛盾、first-failure 局部证据或关键/最终 case 人工复核时启用；普通 smoke、路径诊断和纯源码解释不强制读取。小型关键 case 可保留完整原生波形并选择性查询；大型/长回归从需求、TB/checker、diff 和影响锥生成查询计划，只读取相关层级和局部窗口。资源上限由当前项目/case 决定，不设置跨项目固定阈值。
+
+波形探测只拥有 observed values 与执行/query receipts；需求或独立 model 拥有 expected，checker 拥有 comparison，temporal reviewer 只给出 `INFERRED/UNKNOWN` 因果。一次性 `DIAGNOSTIC_ONLY` 可使用项目现有可追溯查询路径；跨评审复用、`FUNCTIONAL_ACCEPTANCE` 或正式签核才要求项目级 trusted runner、完整工件图和包外冻结 root identity。`COMPLETE`、GUI 可见和波形“看起来正常”均不等于 `SIMULATION_PASS`。厂商 IP 语义必须来自当前官方配置/模型；行为近似模型只能支持限定诊断。具体 wave-mcp、WSL、转换器和机器路径留在本地配置，不写成跨项目事实。
+
 自动修复—复审最多三轮；第一次无进展必须停止盲改并重建根因，连续两轮无进展或第三轮仍有 BLOCKER/HIGH 时停止。路径、工具环境、厂商库、TB/model 与产品 RTL 故障必须分类，不能为了让仿真运行而错误修改 RTL。
 多角色监督采用稳定 diff checkpoint，而不是多人同时写代码或逐行打断：架构师/专项角色先冻结实现合同，`fpga_engineer` 完成一个模块/影响锥/IP/时钟域/脚本批次后冻结 snapshot，相关 verification/CDC/vendor/temporal reviewer 按需并行只读复核，主会话合并一个 findings ledger，再由唯一实现者按 finding ID 修复。final reviewer 在最后集成专项证据，不默认重新全仓库做一遍所有专项。
 

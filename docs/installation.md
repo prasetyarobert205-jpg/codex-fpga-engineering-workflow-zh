@@ -109,6 +109,20 @@ pwsh -NoProfile -File .\scripts\new-fpga-project.ps1 `
 
 也支持 `PANGO`、`ANLOGIC`。脚手架生成标准目录、入口 BAT、setting、filelist、`vsim.do` 和稳定工程身份，但不会伪造真正 `.xpr/.pds/.al` 或厂商命令。
 
+## 可选 wave-mcp 环境
+
+主安装器不会安装 wave-mcp，也不会修改 PATH。需要 AI 查询 FST/VCD 时，单独在用户工具目录中创建 Python/WSL 环境：
+
+```bash
+python3 -m venv <LOCAL_TOOL_ROOT>/venv-wave-mcp
+<LOCAL_TOOL_ROOT>/venv-wave-mcp/bin/python -m pip install \
+  -r integrations/wave-mcp/requirements-tested.txt
+```
+
+`requirements-tested.txt` 用于重现公开实测组合；`requirements.txt` 只锁 wave-mcp 主版本，适合单独探索直接依赖兼容性。复制 `environment.example.json` 到工具目录外的本地清单，例如 `environment.local.json`，填写当前命令和版本/hash；不要把真实绝对路径提交到公共仓库。已有可用环境时无需重复安装，只需每次证据运行重新确认版本和实现 hash。
+
+参见：[wave-mcp 可选集成](../integrations/wave-mcp/README.md)。
+
 ## 新会话发现
 
 安装和 verify 完成后新开 Codex 会话。首次用无害只读 canary：

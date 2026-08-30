@@ -46,6 +46,8 @@ compile exit 0 不等于功能正确；仿真通过不等于 CDC 或时序闭合
 
 日志结束、`$stop` 或波形“看起来正常”不能单独构成 `SIMULATION_PASS`。
 
+波形观察只证明冻结波形中的 observed values。波形不适用时记录 `NOT_APPLICABLE`；被功能结论依赖且与其他证据一致时记录 `CONSISTENT`；`INCONCLUSIVE` 或 `CONTRADICTORY` 不能支持 PASS。`COMPLETE`、GUI 可见、VCD/FST 查询一致和 trusted-runner 链完成都不会取代 requirement、expected、checker 或 negative canary。
+
 ## CDC/STA
 
 异步 FIFO 的结构证据与约束覆盖分别判断。缺少时钟/约束时，timing coverage

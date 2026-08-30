@@ -8,7 +8,7 @@
 
 [![CI](https://github.com/prasetyarobert205-jpg/codex-fpga-engineering-workflow-zh/actions/workflows/validate.yml/badge.svg)](https://github.com/prasetyarobert205-jpg/codex-fpga-engineering-workflow-zh/actions/workflows/validate.yml)
 [![MIT License](https://img.shields.io/badge/License-MIT-16a34a.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.0.1-2457c5.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.1.0-2457c5.svg)](CHANGELOG.md)
 [![中文](https://img.shields.io/badge/文档-简体中文-e11d48.svg)](docs/README.md)
 
 **13 个 FPGA 专用角色 · 单一产品实现者 · 多专项独立监督 · 逐拍 RTL 推理 · CDC/RDC/STA · 官方 IP · 三厂商工具流 · 独立终审**
@@ -155,6 +155,27 @@ fpga_reviewer
 $stop ≠ 功能通过
 波形看起来正常 ≠ 功能通过
 ```
+
+### AI 按需读取波形，而不是把波形当成 PASS oracle
+
+当前版本增加可选的波形观察能力：当 checker/log/assertion 出现矛盾、需要 first-failure 局部证据，或关键/最终 case 需要人工复核时，Codex 可以根据需求、TB/checker、diff 和 transaction impact cone 生成查询计划，只读取相关层级和局部窗口。
+
+```text
+需求 / 独立 model -> expected
+波形工具          -> observed
+checker           -> comparison
+逐拍 reviewer     -> INFERRED / UNKNOWN 因果
+final reviewer    -> 最终 verdict
+```
+
+- 一次性 `DIAGNOSTIC_ONLY` 可直接使用项目已有可追溯查询路径；
+- 跨评审复用、`FUNCTIONAL_ACCEPTANCE` 或正式签核才要求 trusted runner、typed receipts 和包外冻结 root identity；
+- 小型关键 case 可以保留完整 WLF/VCD/FST，但 AI 仍选择性读取；
+- 大型长回归从 first failure 和影响锥开始，不从头遍历全部波形；
+- `COMPLETE`、GUI 可见、VCD/FST 一致都不能单独产生 `SIMULATION_PASS`；
+- 厂商 IP 的 mode/latency/reset/busy 必须来自当前官方配置/模型，行为模型只支持限定诊断。
+
+仓库同时提供 [wave-mcp 可选集成](integrations/wave-mcp/README.md)：只包含基于公开 API 的最小查询适配层、依赖版本、脱敏环境模板和第三方 MIT 许可，不复制完整第三方仓库或本机虚拟环境。详细工程边界见 [AI 按需读取 FPGA 波形](docs/waveform-observation.md)。
 
 ### 4. 严格度跟随任务，不把所有项目都审成发布级
 
@@ -525,6 +546,7 @@ https://github.com/prasetyarobert205-jpg/codex-fpga-engineering-workflow-zh
 - [安装指南](docs/installation.md)
 - [提示词与使用方法](docs/usage.md)
 - [FPGA 工程目录与文件存放位置](docs/project-layout.md)
+- [AI 按需读取 FPGA 波形](docs/waveform-observation.md)
 - [证据与安全边界](docs/safety-and-evidence.md)
 - [公开与私有数据边界](docs/public-private-boundary.md)
 
@@ -548,7 +570,7 @@ https://github.com/prasetyarobert205-jpg/codex-fpga-engineering-workflow-zh
 
 欢迎 Star、试用、提交可复现 Issue，并分享它发现的问题和漏掉的问题。
 
-[贡献指南](CONTRIBUTING.md) · [安全策略](SECURITY.md) · [MIT License](LICENSE)
+[贡献指南](CONTRIBUTING.md) · [安全策略](SECURITY.md) · [第三方声明](THIRD_PARTY-NOTICES.md) · [MIT License](LICENSE)
 
 ---
 

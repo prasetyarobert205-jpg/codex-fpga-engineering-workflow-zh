@@ -120,7 +120,9 @@ linter/script/run.bat [all|verilator|svlint]
 
 ### 7. 仿真证据
 
-验证资产作者报告原始结果但不能自签。功能接受读取[仿真证据与独立接受](references/simulation-evidence.md)。`SIMULATION_PASS` 要求需求追踪、独立 model/checker、逐拍 due cycle/window、scoreboard 排空、X/Z 策略、正确 compile/elaboration/run、完整 case/seed/tool、被拒绝的相关 negative canary 和人工波形一致性。日志结束、`$stop`、退出码 0 或波形“看起来正常”均不足。
+验证资产作者报告原始结果但不能自签。功能接受读取[仿真证据与独立接受](references/simulation-evidence.md)。`SIMULATION_PASS` 要求需求追踪、独立 model/checker、逐拍 due cycle/window、scoreboard 排空、X/Z 策略、正确 compile/elaboration/run、完整 case/seed/tool 和被拒绝的相关 negative canary。波形不适用时可以明确记录 `NOT_APPLICABLE`；适用时必须与 checker/model 证据一致。日志结束、`$stop`、退出码 0、GUI 可见或波形“看起来正常”均不足。
+
+当前请求或 verification plan 需要波形证据时，读取[按需、有界的波形观察](references/waveform-observation.md)。一次性 `DIAGNOSTIC_ONLY` 可以使用项目已有可追溯查询路径；只有波形证据要跨评审复用、进入 `FUNCTIONAL_ACCEPTANCE` 或支持正式签核时，才要求 typed trusted runner、完整执行工件图和包外冻结 root identity。机器专属的 wave-mcp、Python/WSL、转换器和绝对路径留在本地配置，不固化进共享 Skill。
 
 ### 8. Shadow 逐拍审核
 

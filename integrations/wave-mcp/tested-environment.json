@@ -1,0 +1,55 @@
+{
+  "schema_version": "sanitized-tested-wave-mcp-environment-1.0",
+  "observed_date": "2026-08-30",
+  "scope": "ONE_PROJECT_DIAGNOSTIC_SMOKE",
+  "host_flow": "Windows -> WSL2 Ubuntu",
+  "python_version": "3.13.6",
+  "wave_mcp": {
+    "version": "0.1.1",
+    "package_tree": {
+      "root_identity": "installed wave_mcp Python package directory",
+      "included_glob": "**/*.py",
+      "file_count": 19,
+      "entry_format": "<relative-posix-path>:<full-file-sha256>",
+      "sort_order": "relative path ascending",
+      "tree_algorithm": "sha256(join(entries, LF))",
+      "sha256": "98e3444955999c3b671ea6c780a405670d72893a82842a987b6929a0aa36be83"
+    },
+    "server_sha256": "8a082609443a6e83a79bd31eb59b7345b52cac89aa045ae75ff9f2705605b147",
+    "used_api": [
+      "open_session",
+      "close_session",
+      "signal_info",
+      "signal_value_at",
+      "signal_values_in_range"
+    ],
+    "direct_dependencies": {
+      "mcp": "2.1.1",
+      "pylibfst": "0.2.1",
+      "pyslang": "11.0.0"
+    }
+  },
+  "converter": {
+    "kind": "vcd2fst",
+    "executable_size": 1607942,
+    "sha256": "c8d48e1a61b0e46045ff5d0d98c3a24303c009b047e0a466b97e1c1f00dd8c39"
+  },
+  "observed_result": {
+    "format_path": "selected ModelSim VCD -> FST -> wave-mcp",
+    "scalar_range_entries": 53,
+    "independent_vcd_mismatch_count": 0,
+    "allowed_claim": "DIAGNOSTIC_CHAIN_COMPLETE / DIAGNOSTIC_ONLY"
+  },
+  "not_verified": [
+    "第二个独立工程",
+    "Pango/Anlogic 实际波形链",
+    "WDB/FSDB/native WLF 直接读取",
+    "完整 X/Z/aggregate 格式矩阵",
+    "官方 IP FUNCTIONAL_ACCEPTANCE"
+  ],
+  "privacy": {
+    "absolute_machine_paths_included": false,
+    "project_or_customer_paths_included": false,
+    "virtual_environment_binary_included": false
+  }
+}

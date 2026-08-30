@@ -1,0 +1,23 @@
+{
+  "schema_version": "portable-wave-mcp-environment-1.0",
+  "scope": "MACHINE_LOCAL_DISCOVERY_ONLY",
+  "wsl_distro": "<例如 Ubuntu；非 WSL 环境可删除此字段>",
+  "python": "<wave-mcp 虚拟环境中的 Python 命令或绝对路径>",
+  "wave_mcp": {
+    "required_version": "0.1.1",
+    "tested_requirements_file": "requirements-tested.txt",
+    "package_tree_sha256": "<按 tested-environment.json 定义的算法每次重新计算；可为空>",
+    "server_sha256": "<每次证据运行重新计算；可为空>"
+  },
+  "converter": {
+    "kind": "vcd2fst",
+    "command": "<vcd2fst 命令或绝对路径；已有 FST 时可删除 converter>",
+    "sha256": "<可执行文件 SHA-256；可为空>"
+  },
+  "policy": {
+    "modify_global_path": false,
+    "modify_global_library_mapping": false,
+    "claim_ceiling": "LOCAL_TOOL_DISCOVERY_ONLY",
+    "revalidate_per_run": true
+  }
+}

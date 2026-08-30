@@ -2,7 +2,7 @@
 
 [中文导航](README.md) · [角色](roles.md) · [公开与私有边界](public-private-boundary.md)
 
-本仓库以维护者 2026-08-28 的本机 FPGA 角色和 Skill 为能力基线。等价目标不是逐字复制私人文件，而是公开后不降低角色权限、工程门禁、工具流能力和证据边界。
+本仓库以维护者 2026-08-30 的本机 FPGA 角色和 Skill 为能力基线。等价目标不是逐字复制私人文件，而是公开后不降低角色权限、工程门禁、工具流能力和证据边界。
 
 ## 保持一致
 
@@ -22,7 +22,8 @@
 - 标准工程目录和原生 BAT 工具流；
 - Xilinx/Pango/Anlogic 识别；
 - 私有故障库 schema/config/query 能力；
-- 45 个 Skill 文件、11 个 schema、6 个确定性 Skill 脚本。
+- 46 个 Skill 文件、11 个 schema、6 个确定性 Skill 脚本；
+- 按需波形观察、波形可选性状态、observed/expected/checker 分权和本地 wave-mcp 可选集成边界。
 
 机器可读清单见 [CAPABILITY-MANIFEST.json](../CAPABILITY-MANIFEST.json)。
 

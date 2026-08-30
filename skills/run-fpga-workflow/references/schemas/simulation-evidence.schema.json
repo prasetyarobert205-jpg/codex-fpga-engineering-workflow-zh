@@ -3,7 +3,7 @@
   "$id": "simulation-evidence.schema.json",
   "title": "FPGA Simulation Evidence",
   "type": "object",
-  "required": ["schema_version", "snapshot_id", "classification", "requirements", "checker_results", "negative_canaries", "scoreboard_drained", "manual_waveform_consistent"],
+  "required": ["schema_version", "snapshot_id", "classification", "requirements", "checker_results", "negative_canaries", "scoreboard_drained"],
   "properties": {
     "schema_version": {"const": "0.3"},
     "snapshot_id": {"type": "string"},
@@ -16,21 +16,26 @@
     "scoreboard_drained": {"type": "boolean"},
     "xz_policy": {"type": "string"},
     "manual_waveform_consistent": {"type": "boolean"},
+    "waveform_consistency": {"enum": ["NOT_APPLICABLE", "CONSISTENT", "CONTRADICTORY", "INCONCLUSIVE"]},
     "first_failure": {"type": ["object", "null"]},
     "proof_packets": {"type": "array", "items": {"type": "string"}}
   },
+  "not": {"required": ["manual_waveform_consistent", "waveform_consistency"]},
   "allOf": [
     {
       "if": {"properties": {"classification": {"const": "SIMULATION_PASS"}}, "required": ["classification"]},
       "then": {
         "required": ["evidence_profile", "xz_policy", "proof_packets"],
+        "anyOf": [
+          {"required": ["waveform_consistency"], "not": {"required": ["manual_waveform_consistent"]}, "properties": {"waveform_consistency": {"enum": ["NOT_APPLICABLE", "CONSISTENT"]}}},
+          {"required": ["manual_waveform_consistent"], "not": {"required": ["waveform_consistency"]}, "properties": {"manual_waveform_consistent": {"const": true}}}
+        ],
         "properties": {
           "evidence_profile": {"const": "FUNCTIONAL_ACCEPTANCE"},
           "requirements": {"type": "array", "minItems": 1, "items": {"type": "object", "required": ["id", "source"], "properties": {"id": {"type": "string", "minLength": 1}, "source": {"type": "string", "minLength": 1}}}},
           "checker_results": {"type": "array", "minItems": 1, "items": {"type": "object", "required": ["checker", "requirement_id", "passed"], "properties": {"checker": {"type": "string", "minLength": 1}, "requirement_id": {"type": "string", "minLength": 1}, "passed": {"const": true}}}},
           "negative_canaries": {"type": "array", "minItems": 1, "items": {"type": "object", "required": ["name", "detected"], "properties": {"name": {"type": "string", "minLength": 1}, "detected": {"const": true}}}},
           "scoreboard_drained": {"const": true},
-          "manual_waveform_consistent": {"const": true},
           "xz_policy": {"type": "string", "minLength": 1},
           "proof_packets": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}}
         }

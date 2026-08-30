@@ -1,7 +1,7 @@
 {
   "name": "codex-fpga-engineering-workflow-zh",
-  "version": "1.0.1",
-  "description": "面向 FPGA/SoC FPGA 的全中文 Codex 多角色证据工程工作流：单一产品写入者、逐拍审核、CDC/RDC、STA、官方 IP、原生工具流与独立签核。",
+  "version": "1.1.0",
+  "description": "面向 FPGA/SoC FPGA 的全中文 Codex 多角色证据工程工作流：单一产品写入者、逐拍审核、按需波形观察、CDC/RDC、STA、官方 IP、原生工具流与独立签核。",
   "author": {
     "name": "prasetyarobert205-jpg",
     "url": "https://github.com/prasetyarobert205-jpg"
@@ -9,12 +9,12 @@
   "homepage": "https://github.com/prasetyarobert205-jpg/codex-fpga-engineering-workflow-zh",
   "repository": "https://github.com/prasetyarobert205-jpg/codex-fpga-engineering-workflow-zh",
   "license": "MIT",
-  "keywords": ["fpga", "rtl", "verilog", "systemverilog", "cdc", "sta", "codex", "中文", "多角色"],
+  "keywords": ["fpga", "rtl", "verilog", "systemverilog", "waveform", "wave-mcp", "cdc", "sta", "codex", "中文", "多角色"],
   "skills": "./skills/",
   "interface": {
     "displayName": "Codex FPGA 中文证据工程工作流",
     "shortDescription": "13 个专用角色，把 AI 辅助 FPGA 开发变成可审查、可复现的工程流程。",
-    "longDescription": "完整中文 FPGA/SoC FPGA 工作流，覆盖架构、RTL、官方 IP、仿真、CDC/RDC、STA、物理实现、厂商平台、板级准备和独立终审，并保持单一产品写入者与真实证据边界。",
+    "longDescription": "完整中文 FPGA/SoC FPGA 工作流，覆盖架构、RTL、官方 IP、仿真、按需波形观察、CDC/RDC、STA、物理实现、厂商平台、板级准备和独立终审，并保持单一产品写入者与真实证据边界。",
     "developerName": "prasetyarobert205-jpg",
     "category": "Developer Tools",
     "capabilities": ["Analyze", "Write", "Verify", "Review"],

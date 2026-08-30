@@ -12,9 +12,21 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
       - name: 验证角色、Skill、schema、脚本和公开内容
         shell: pwsh
         run: ./scripts/validate-package.ps1
+      - name: 验证 wave-mcp 可选集成的 Python 与脱敏清单
+        shell: pwsh
+        run: |
+          python -m py_compile integrations/wave-mcp/query_adapter.py integrations/wave-mcp/validate_environment.py integrations/wave-mcp/test_query_adapter.py
+          python integrations/wave-mcp/validate_environment.py integrations/wave-mcp/environment.example.json --allow-placeholders
+          python integrations/wave-mcp/validate_environment.py integrations/wave-mcp/tested-environment.json
+          python integrations/wave-mcp/query_adapter.py --help
+          Push-Location integrations/wave-mcp
+          try { python -m unittest -v test_query_adapter.py } finally { Pop-Location }
       - name: Smoke 测试标准工程脚手架
         shell: pwsh
         run: |

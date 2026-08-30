@@ -57,6 +57,22 @@ canonical .xpr/.pds/.al：UNKNOWN 时请自动查找
 按真实 accepted edge 建立 cycle-indexed scoreboard，检查 latency、early/late/drop/duplicate/reorder、data 和 sideband；scoreboard 必须排空，定义 X/Z policy，并证明相关 negative canary 会被 checker 拒绝。验证资产作者不能自签。
 ```
 
+## 波形首差异诊断
+
+```text
+使用 $run-fpga-workflow，profile=DIAGNOSTIC_SMOKE，claim_stage=SIM_SMOKE。
+当前 checker/log 在 [时间/周期/transaction] 首次失败。根据需求、TB/checker 和影响锥，只读取 first failure 前后必要的 clock/reset/data/valid/ready/sideband/FIFO/FSM/error 信号。
+波形工具只提供 observed，不生成 expected 或 root cause；记录波形 hash、工具版本、查询窗口、cap、退出状态和限制。一次性诊断不强制建设完整 trusted runner。
+```
+
+## 可跨评审复用的波形证据
+
+```text
+使用 $run-fpga-workflow，把当前关键 case 的波形证据交给 temporal/final reviewer 重放。
+使用项目级 trusted runner 记录 simulator/converter/query 的真实 argv/cwd/exit、snapshot/case/seed、stage inputs/outputs、required queries 和工件 hash；把 root identity 保存在 bundle 外。
+即使查询 COMPLETE，也不得签 SIMULATION_PASS，除非独立 model/checker、scoreboard、X/Z、negative canary 和其他功能接受条件全部满足。
+```
+
 ## 官方 IP
 
 ```text

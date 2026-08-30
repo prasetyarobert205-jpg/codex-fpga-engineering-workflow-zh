@@ -15,3 +15,8 @@ project/par/*.sim/
 .vscode/
 install-manifest.json
 *.backup-*
+__pycache__/
+integrations/wave-mcp/environment.local.json
+integrations/wave-mcp/.venv/
+integrations/wave-mcp/sessions/
+integrations/wave-mcp/waves/

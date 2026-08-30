@@ -2,6 +2,31 @@
 
 版本遵循语义化版本。未执行的 EDA、DUT、CDC/STA、bitstream 和板级检查不因包版本发布而变成已验证。
 
+## 1.1.0 - 2026-08-30
+
+### 新增
+
+- 同步本机当前 FPGA 工作流的按需波形观察边界，但不新增平行角色；
+- 新增中文 `waveform-observation` Skill reference 和用户文档；
+- 新增 Tencent/wave-mcp 0.1.1 可选集成：公开 API point/range adapter、依赖锁定、脱敏环境模板、实测环境摘要和 MIT 许可；
+- 增加一次性诊断与跨评审/功能接受证据的分层：前者可轻量查询，后者才要求 trusted runner、typed receipts 和包外 root identity；
+- 增加 `waveform_consistency` 四态并保留 legacy-only `manual_waveform_consistent=true` 兼容。
+
+### 修复
+
+- 解除“所有 `SIMULATION_PASS` 都必须人工看波形”的旧过度约束；
+- 新旧波形字段完全互斥，防止 `CONTRADICTORY/INCONCLUSIVE` 被 legacy 字段绕过；
+- 统一 simulation evidence 的 canonical `proof_packets` 字段并加入正式 validator canary；
+- 正式 validator 按 profile/classification 分层，最小 `DIAGNOSTIC_ONLY` 不再被功能 PASS 字段过度阻塞；
+- wave-mcp receipt 绑定实际 FST SHA-256、校验窗口起点语义并记录直接依赖；GitHub CI 覆盖 Python/manifest/unit smoke；
+- 明确 `COMPLETE`、`CROSS_REFERENCE_CONSISTENT`、GUI 可见和波形匹配均不能单独产生 `SIMULATION_PASS`。
+
+### 边界
+
+- 本版本不复制完整 wave-mcp 仓库、虚拟环境、二进制工具或本机绝对路径；
+- 公开实测只覆盖一个 Xilinx/ModelSim/selected VCD→FST/wave-mcp 0.1.1 诊断链，不宣称三厂商、多格式或官方 IP 功能签核已验证；
+- 13 个角色的名称、读写权限、单一产品写入者和独立审核边界保持不变。
+
 ## 1.0.1 - 2026-08-28
 
 ### 改进

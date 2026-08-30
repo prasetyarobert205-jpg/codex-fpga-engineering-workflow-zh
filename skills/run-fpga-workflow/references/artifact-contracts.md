@@ -11,6 +11,7 @@
 | `verification-plan.json` | verification author | Requirement → Test → Checker → Cover 和独立性声明 |
 | `run-manifest.json` | runner | 精确命令、cwd、工具/版本、target、parameter、seed、退出码和产物路径 |
 | `simulation-evidence.json` | runner/reviewer | 逐拍 expected/observed、checker、canary 和结果分类 |
+| 波形观察 bundle | 项目级 runner + 只读 reviewer | 可选的 selected-wave/query 证据、执行 receipt、实际覆盖信号/窗口和限制；跨评审复用时绑定包外冻结 root identity；不能充当 expected、因果或 PASS oracle |
 | `findings-ledger.json` | coordinator | 跨 snapshot 与修复轮次的稳定 finding 生命周期 |
 | Model Card | verification + datasheet reviewer | 设备、协议和参考模型的来源、假设与限制 |
 | IP proof packet | FPGA engineer + vendor reviewer | 官方 IP 身份、生成方法、配置所有权、契约、output products、OOC、约束、仿真和 reopen 证据 |
