@@ -175,7 +175,7 @@ final reviewer    -> 最终 verdict
 - `COMPLETE`、GUI 可见、VCD/FST 一致都不能单独产生 `SIMULATION_PASS`；
 - 厂商 IP 的 mode/latency/reset/busy 必须来自当前官方配置/模型，行为模型只支持限定诊断。
 
-仓库同时提供 [wave-mcp 可选集成](integrations/wave-mcp/README.md)：只包含基于公开 API 的最小查询适配层、依赖版本、脱敏环境模板和第三方 MIT 许可，不复制完整第三方仓库或本机虚拟环境。详细工程边界见 [AI 按需读取 FPGA 波形](docs/waveform-observation.md)。
+仓库同时提供腾讯开源RTL波形分析仓库内容 [wave-mcp 可选集成](integrations/wave-mcp/README.md)：只包含基于公开 API 的最小查询适配层、依赖版本、脱敏环境模板和第三方 MIT 许可，不复制完整第三方仓库或本机虚拟环境。详细工程边界见 [AI 按需读取 FPGA 波形](docs/waveform-observation.md)。
 
 ### 4. 严格度跟随任务，不把所有项目都审成发布级
 
