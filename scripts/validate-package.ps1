@@ -1,5 +1,5 @@
 [CmdletBinding()]
-param()
+param([switch]$NoRuntimeCanaries)
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
@@ -10,7 +10,7 @@ function Add-CheckError([string]$Message) { $script:errors.Add($Message) }
 function Get-PortablePath([string]$Path) { return ([IO.Path]::GetRelativePath($root, $Path) -replace '\\', '/') }
 
 $required = @(
-    '.codex-plugin/plugin.json', 'README.md', 'AGENTS.md', 'LICENSE', 'THIRD_PARTY-NOTICES.md', 'VERSION', 'CAPABILITY-MANIFEST.json',
+    '.codex-plugin/plugin.json', '.agents/plugins/marketplace.json', 'README.md', 'INSTALL_WITH_CODEX.md', 'AGENTS.md', 'LICENSE', 'THIRD_PARTY-NOTICES.md', 'VERSION', 'CAPABILITY-MANIFEST.json',
     'CHANGELOG.md', 'COMPATIBILITY.md', 'CONTRIBUTING.md', 'SECURITY.md', 'assets/hero.svg',
     'docs/README.md', 'docs/architecture.md', 'docs/advantages.md', 'docs/roles.md',
     'docs/installation.md', 'docs/usage.md', 'docs/safety-and-evidence.md', 'docs/public-private-boundary.md',
@@ -18,6 +18,7 @@ $required = @(
     'docs/capability-equivalence.md',
     'templates/AGENTS.fpga.md', 'templates/fault-library.config.example.json',
     'skills/run-fpga-workflow/SKILL.md', 'skills/run-fpga-workflow/agents/openai.yaml',
+    'skills/setup-fpga-workflow/SKILL.md', 'skills/setup-fpga-workflow/agents/openai.yaml', 'skills/setup-fpga-workflow/references/source.json',
     'skills/run-fpga-workflow/assets/icon.svg',
     'skills/run-fpga-workflow/references/artifact-contracts.md',
     'skills/run-fpga-workflow/references/task-profiles.md',
@@ -37,6 +38,7 @@ $required = @(
     'skills/run-fpga-workflow/scripts/new-fpga-project.ps1',
     'skills/run-fpga-workflow/scripts/update-fpga-filelists.ps1',
     'scripts/install.ps1', 'scripts/verify-install.ps1', 'scripts/uninstall.ps1',
+    'scripts/bootstrap.ps1', 'scripts/deployment-doctor.ps1', 'scripts/prepare-wave-environment.ps1',
     'scripts/detect-vendor.ps1', 'scripts/update-filelists.ps1', 'scripts/preflight-project.ps1',
     'scripts/prepare-vendor-libraries.ps1', 'scripts/new-fpga-project.ps1', 'scripts/fault-library.ps1',
     'scripts/validate-simulation-evidence.ps1',
@@ -101,6 +103,20 @@ if ($null -ne $plugin) {
     foreach ($unsupported in @('apps','mcpServers','hooks')) {
         if ($plugin.PSObject.Properties.Name -contains $unsupported) { Add-CheckError "插件清单包含未配置字段：$unsupported" }
     }
+    if (@($plugin.interface.defaultPrompt).Count -gt 3) { Add-CheckError '插件 defaultPrompt 超过 3 条。' }
+}
+
+try { $marketplace = Get-Content -LiteralPath (Join-Path $root '.agents\plugins\marketplace.json') -Raw -Encoding UTF8 | ConvertFrom-Json }
+catch { Add-CheckError 'marketplace.json 不是有效 JSON。'; $marketplace = $null }
+if ($null -ne $marketplace) {
+    if ($marketplace.name -ne 'codex-fpga-zh' -or $marketplace.interface.displayName -ne '中文 FPGA 工程工作流') { Add-CheckError 'Marketplace 名称或显示名不正确。' }
+    if (@($marketplace.plugins).Count -ne 1) { Add-CheckError 'Marketplace 应只包含当前一个插件。' }
+    else {
+        $entry = $marketplace.plugins[0]
+        if ($entry.name -ne 'codex-fpga-engineering-workflow-zh' -or $entry.source.source -ne 'url') { Add-CheckError 'Marketplace 插件名或 root URL source 不正确。' }
+        if ($entry.source.url -ne 'https://github.com/prasetyarobert205-jpg/codex-fpga-engineering-workflow-zh.git' -or $entry.source.ref -ne 'v1.2.0') { Add-CheckError 'Marketplace URL/ref 未冻结到 v1.2.0。' }
+        if ($entry.policy.installation -ne 'AVAILABLE' -or $entry.policy.authentication -ne 'ON_INSTALL' -or [string]::IsNullOrWhiteSpace($entry.category)) { Add-CheckError 'Marketplace policy/category 不完整。' }
+    }
 }
 
 try { $capability = Get-Content -LiteralPath (Join-Path $root 'CAPABILITY-MANIFEST.json') -Raw | ConvertFrom-Json }
@@ -113,6 +129,8 @@ if ($null -ne $capability) {
     if ($capability.skill_contract.files -ne 46 -or $capability.skill_contract.schemas -ne 11 -or $capability.skill_contract.deterministic_scripts -ne 6) {
         Add-CheckError '能力清单 Skill 文件、schema 或脚本计数不正确。'
     }
+    if (@($capability.plugin_distribution.skills).Count -ne 2 -or -not $capability.plugin_distribution.github_marketplace -or $capability.plugin_distribution.marketplace_ref -ne 'v1.2.0' -or $capability.plugin_distribution.bootstrap_scripts -ne 3) { Add-CheckError '能力清单的 Plugin/部署合同不正确。' }
+    if ($capability.plugin_distribution.default_user_install_overwrite -ne $false -or $capability.plugin_distribution.default_install_wsl -ne $false) { Add-CheckError '能力清单错误放宽了默认覆盖或 WSL 安装。' }
 }
 
 $skillText = Get-Content -LiteralPath (Join-Path $root 'skills\run-fpga-workflow\SKILL.md') -Raw
@@ -140,6 +158,15 @@ foreach ($schema in $schemaFiles) {
     catch { Add-CheckError "无效 JSON Schema：$($schema.Name)" }
 }
 
+$setupSkill = Get-Content -LiteralPath (Join-Path $root 'skills\setup-fpga-workflow\SKILL.md') -Raw -Encoding UTF8
+foreach ($token in @('setup-fpga-workflow','bootstrap.ps1','validate-package.ps1','references/source.json','PACKAGE_SOURCE_REQUIRED','不得回退到未固定的','WaveMode','PARTIAL_WSL_REQUIRED','不得自行执行','不修改注册表','新开 Codex 会话')) {
+    if ($setupSkill -notmatch [regex]::Escape($token)) { Add-CheckError "部署 Skill 缺少合同：$token" }
+}
+$setupMetadata = Get-Content -LiteralPath (Join-Path $root 'skills\setup-fpga-workflow\agents\openai.yaml') -Raw -Encoding UTF8
+if ($setupMetadata -notmatch 'allow_implicit_invocation:\s*false') { Add-CheckError '部署 Skill 必须禁止隐式调用。' }
+$setupSource = Get-Content -LiteralPath (Join-Path $root 'skills\setup-fpga-workflow\references\source.json') -Raw -Encoding UTF8 | ConvertFrom-Json
+if ($setupSource.package -ne 'codex-fpga-engineering-workflow-zh' -or $setupSource.version -ne $version -or $setupSource.ref -ne 'v1.2.0' -or $setupSource.repository -ne 'https://github.com/prasetyarobert205-jpg/codex-fpga-engineering-workflow-zh.git') { Add-CheckError '部署 Skill 的固定 source manifest 不正确。' }
+
 $simulationSchema = Join-Path $root 'skills\run-fpga-workflow\references\schemas\simulation-evidence.schema.json'
 function Test-SimulationSchema([hashtable]$Document) {
     try { return Test-Json -Json ($Document | ConvertTo-Json -Depth 12 -Compress) -SchemaFile $simulationSchema -ErrorAction SilentlyContinue }
@@ -163,8 +190,9 @@ $diagMixed = $diagNoWave.Clone(); $diagMixed.waveform_consistency = 'INCONCLUSIV
 if (Test-SimulationSchema $diagMixed) { Add-CheckError '非 PASS 工件的新旧 waveform 字段也必须互斥。' }
 
 $evidenceValidator = Join-Path $root 'scripts\validate-simulation-evidence.ps1'
-$evidenceFixtureRoot = Join-Path ([IO.Path]::GetTempPath()) ("fpga-simulation-evidence-" + [guid]::NewGuid().ToString('N'))
-try {
+if (-not $NoRuntimeCanaries) {
+  $evidenceFixtureRoot = Join-Path ([IO.Path]::GetTempPath()) ("fpga-simulation-evidence-" + [guid]::NewGuid().ToString('N'))
+  try {
     New-Item -ItemType Directory -Path $evidenceFixtureRoot -Force | Out-Null
     $diagnosticFixture = [ordered]@{
         schema_version='0.3'; run_id='diag1'; snapshot_id='diag-s1'; evidence_profile='DIAGNOSTIC_SMOKE'; classification='DIAGNOSTIC_ONLY'
@@ -192,8 +220,9 @@ try {
     try { $null = & $evidenceValidator -EvidencePath $evidencePath -ExpectedSnapshotId s1 }
     catch { $missingProofRejected = $true }
     if (-not $missingProofRejected) { Add-CheckError '正式 validator 未拒绝缺失的 proof_packets 工件。' }
-} finally {
+  } finally {
     if (Test-Path -LiteralPath $evidenceFixtureRoot) { Remove-Item -LiteralPath $evidenceFixtureRoot -Recurse -Force }
+  }
 }
 foreach ($state in @('CONTRADICTORY','INCONCLUSIVE')) {
     $doc = $functionalBase.Clone(); $doc.waveform_consistency = $state
@@ -234,6 +263,28 @@ foreach ($canonical in @('project/rtl','project/par','project/script','simulatio
 }
 if ($scaffoldText -match '(?i)(project2|par2|script2|scriptC)') { Add-CheckError '脚手架包含数字或临时后缀标准目录。' }
 if ($scaffoldText -notmatch 'canonical_project_file') { Add-CheckError '脚手架未报告 canonical project file。' }
+
+$installText = Get-Content -LiteralPath (Join-Path $root 'scripts\install.ps1') -Raw -Encoding UTF8
+foreach ($token in @('run-fpga-workflow','setup-fpga-workflow','拒绝覆盖不同内容','WhatIfPreference','PlanOnly','REPLACE_WITH_BACKUP','Assert-SafeInstallRoot','Assert-SafeTargetPath','CodexFpgaDeploy','Write-AtomicUtf8Json')) {
+    if ($installText -notmatch [regex]::Escape($token)) { Add-CheckError "安装器缺少合同：$token" }
+}
+if ($installText -notmatch [regex]::Escape('NONDEFAULT_CODEX_HOME_UNVERIFIED')) { Add-CheckError '安装器未对非默认 CODEX_HOME fail-closed。' }
+$bootstrapText = Get-Content -LiteralPath (Join-Path $root 'scripts\bootstrap.ps1') -Raw -Encoding UTF8
+$doctorText = Get-Content -LiteralPath (Join-Path $root 'scripts\deployment-doctor.ps1') -Raw -Encoding UTF8
+$prepareWaveText = Get-Content -LiteralPath (Join-Path $root 'scripts\prepare-wave-environment.ps1') -Raw -Encoding UTF8
+foreach ($token in @('validate-package.ps1','install.ps1','verify-install.ps1','deployment-doctor.ps1','PLAN_NO_CHANGES','UNVERIFIED_TRANSIENT','doctor.fresh_session_required','PARTIAL','global_path_modified')) {
+    if ($bootstrapText -notmatch [regex]::Escape($token)) { Add-CheckError "bootstrap 缺少合同：$token" }
+}
+if ($bootstrapText -notmatch [regex]::Escape('NoRuntimeCanaries')) { Add-CheckError 'bootstrap WhatIf 未切换为纯静态包验证。' }
+foreach ($token in @('PARTIAL_WSL_REQUIRED','PARTIAL_WSL2_REQUIRED','TOOL_ENV_ACCESS_DENIED','PARTIAL_PYTHON_REQUIRED','PACKAGES_READY_FST_QUERY_NOT_RUN','READY_0.1.1_LIVE','LOCAL_ENV_UNAVAILABLE','TOOL_ENV_IMPORT_FAIL','VALIDATED_SYNTHETIC_SMOKE','TOOL_VERSION_MISMATCH','INSTALL_ALREADY_RUNNING','ExistingWavePython','Wheelhouse','RunSmoke','expectedTransition','requirements-tested.txt','environment.local.json','global_library_mapping_modified','Threading.Mutex','Get-WslTimedArguments','--kill-after=5s','Remove-SafeSmokeTree','Write-AtomicUtf8Json','ToolRoot 不能是磁盘根目录','ToolRoot 必须位于插件/仓库根之外')) {
+    if ($prepareWaveText -notmatch [regex]::Escape($token)) { Add-CheckError "wave 环境准备脚本缺少合同：$token" }
+}
+foreach ($pair in @(@('verify-install.ps1',(Get-Content -LiteralPath (Join-Path $root 'scripts\verify-install.ps1') -Raw -Encoding UTF8)),@('uninstall.ps1',(Get-Content -LiteralPath (Join-Path $root 'scripts\uninstall.ps1') -Raw -Encoding UTF8)),@('deployment-doctor.ps1',$doctorText))) {
+    foreach ($token in @('Assert-SafeInstallRoot','Assert-SafeTargetPath','Test-AllowedInstalledRelativePath','Get-ExpectedRelativePaths','expected file-set')) {
+        if ($pair[1] -notmatch [regex]::Escape($token)) { Add-CheckError "$($pair[0]) 缺少部署安全合同：$token" }
+    }
+}
+if (($bootstrapText + $prepareWaveText + $doctorText) -match '(?im)^\s*(?:&\s*)?(?:wsl(?:\.exe)?\s+--install\b|sudo\b|apt(?:-get)?\s+install\b|setx\b)|SetEnvironmentVariable\s*\(') { Add-CheckError '部署脚本包含默认禁止的 WSL/系统包/全局环境安装动作。' }
 
 $temporal = Get-Content -LiteralPath (Join-Path $root '.codex\agents\fpga_temporal_evidence_reviewer.toml') -Raw
 foreach ($token in @('STATIC_CYCLE','SIMULATION_EVIDENCE','COMBINED','SHADOW','NEEDS_PARTITION')) {
@@ -305,4 +356,5 @@ if ($errors.Count -gt 0) {
     throw "包验证失败，共 $($errors.Count) 项。"
 }
 
-Write-Host "包验证通过：版本 $version；13 个角色（10 只读、3 条件写入）；46 个 Skill 文件、11 个 schema、6 个确定性 Skill 脚本；中文波形观察与 wave-mcp 可选集成、原生 BAT/DO 模板、UTF-8、隐私和公开内容检查全部通过。"
+$validationKind = if ($NoRuntimeCanaries) { '静态包验证' } else { '完整包验证' }
+Write-Host "$validationKind 通过：版本 $version；13 个角色（10 只读、3 条件写入）；2 个插件 Skill；46 个 FPGA Skill 文件、11 个 schema、6 个确定性工程脚本；GitHub marketplace、3 个部署/环境脚本、按需波形观察、UTF-8、隐私和公开内容检查全部通过。"

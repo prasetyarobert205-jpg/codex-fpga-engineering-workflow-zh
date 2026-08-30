@@ -2,6 +2,30 @@
 
 版本遵循语义化版本。未执行的 EDA、DUT、CDC/STA、bitstream 和板级检查不因包版本发布而变成已验证。
 
+## 1.2.0 - 2026-08-30
+
+### 新增
+
+- 新增 repo marketplace，使 Codex CLI 可从 GitHub URL/`owner/repo@v1.2.0` 发现插件；
+- 新增显式调用的 `$setup-fpga-workflow`，负责预览、安装、检查和卸载路由；
+- 新增 `bootstrap.ps1`、`deployment-doctor.ps1` 和 `prepare-wave-environment.ps1`；
+- 用户只需提供仓库地址和短提示词即可部署 13 个角色、两个 Skill，并检测或准备可选 wave-mcp venv；
+- 支持复用精确版本的已有 venv、受限网络 wheelhouse、同一工具根互斥锁和 pip 超时分类；
+- 可选合成 VCD→FST→wave-mcp smoke；doctor 会现场复核 Python 包版本和 converter SHA-256；
+- 新增根级 `INSTALL_WITH_CODEX.md`，提供 marketplace 和无需 Plugin CLI 的两条安装路径。
+
+### 安全边界
+
+- 默认不覆盖不同内容，不安装全局 `AGENTS.md`，不使用 `-Force`；
+- 默认只检测 WSL，不自动执行 `wsl --install`、sudo/apt、管理员操作或系统重启；
+- wave-mcp 环境只写入用户选择的独立工具根，不修改全局 PATH、注册表或 ModelSim library mapping；
+- WSL/Python/转换器缺失返回 `PARTIAL/USER_ACTION_REQUIRED`，不影响已成功的角色与 Skill 安装。
+
+### 保持不变
+
+- 仍是 13 个角色（10 个严格只读、3 个条件顺序写入），没有第 14 个 wave 角色；
+- wave 工具仍只拥有 observed values，不拥有 expected、root cause 或 `SIMULATION_PASS`。
+
 ## 1.1.0 - 2026-08-30
 
 ### 新增

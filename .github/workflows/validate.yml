@@ -18,6 +18,26 @@ jobs:
       - name: 验证角色、Skill、schema、脚本和公开内容
         shell: pwsh
         run: ./scripts/validate-package.ps1
+      - name: Smoke 测试 GitHub 地址部署入口
+        shell: pwsh
+        run: |
+          $previewTarget = Join-Path $env:RUNNER_TEMP 'fpga-bootstrap-preview'
+          New-Item -ItemType Directory -Path $previewTarget -Force | Out-Null
+          $preview = ./scripts/bootstrap.ps1 -Scope Project -ProjectPath $previewTarget -WaveMode Skip -WhatIf
+          if ($preview.status -ne 'PLAN_NO_CHANGES') { throw 'bootstrap WhatIf 未返回 PLAN_NO_CHANGES。' }
+          if (Test-Path (Join-Path $previewTarget '.codex/agents')) { throw 'bootstrap WhatIf 发生了写入。' }
+
+          $installTarget = Join-Path $env:RUNNER_TEMP 'fpga-bootstrap-install'
+          New-Item -ItemType Directory -Path $installTarget -Force | Out-Null
+          $result = ./scripts/bootstrap.ps1 -Scope Project -ProjectPath $installTarget -WaveMode Skip
+          if ($result.status -ne 'READY' -or $result.roles.found -ne 13 -or -not $result.skills.setup_fpga_workflow) { throw 'bootstrap 安装结果不正确。' }
+          $doctor = ./scripts/deployment-doctor.ps1 -Scope Project -ProjectPath $installTarget -SkipWaveProbe
+          if ($doctor.status -ne 'READY') { throw 'deployment doctor 失败。' }
+          ./scripts/uninstall.ps1 -Scope Project -ProjectPath $installTarget
+          if (Test-Path (Join-Path $installTarget '.codex/codex-fpga-engineering-workflow-zh.install.json')) { throw '卸载后仍保留 install manifest。' }
+
+          $wave = ./scripts/prepare-wave-environment.ps1 -Mode Detect
+          if ($wave.status -eq 'DETECTING') { throw 'wave Detect 没有收敛到明确状态。' }
       - name: 验证 wave-mcp 可选集成的 Python 与脱敏清单
         shell: pwsh
         run: |

@@ -13,6 +13,8 @@
 
 ## 最推荐：让 Codex 帮你安装到当前工程
 
+如果希望用户级一键部署，优先阅读根目录的 [把仓库地址交给 Codex 安装](../INSTALL_WITH_CODEX.md)。仓库从 `v1.2.0` 起同时提供 Plugin Marketplace、显式部署 Skill 和 bootstrap。
+
 把以下提示词发给 Codex：
 
 ```text
@@ -79,6 +81,7 @@ pwsh -NoProfile -File .\scripts\verify-install.ps1 -Scope User
 ```text
 <UserProfile>/.codex/agents/*.toml
 <UserProfile>/.agents/skills/run-fpga-workflow/**
+<UserProfile>/.agents/skills/setup-fpga-workflow/**
 ```
 
 安装器默认拒绝覆盖不同内容。不要为了省事直接使用 `-Force`；先审查差异。明确使用 `-Force` 时，安装器必须为被替换文件创建时间戳备份。
@@ -111,7 +114,17 @@ pwsh -NoProfile -File .\scripts\new-fpga-project.ps1 `
 
 ## 可选 wave-mcp 环境
 
-主安装器不会安装 wave-mcp，也不会修改 PATH。需要 AI 查询 FST/VCD 时，单独在用户工具目录中创建 Python/WSL 环境：
+bootstrap 默认只检测，不安装 WSL。已有 WSL 发行版时，可以让仓库在用户工具目录创建独立 venv：
+
+```powershell
+pwsh -NoProfile -File .\scripts\bootstrap.ps1 `
+  -Scope User `
+  -WaveMode Prepare `
+  -WaveToolRoot C:\path\to\codex-fpga-tools `
+  -WslPython python3
+```
+
+也可以手工创建：
 
 ```bash
 python3 -m venv <LOCAL_TOOL_ROOT>/venv-wave-mcp
@@ -120,6 +133,14 @@ python3 -m venv <LOCAL_TOOL_ROOT>/venv-wave-mcp
 ```
 
 `requirements-tested.txt` 用于重现公开实测组合；`requirements.txt` 只锁 wave-mcp 主版本，适合单独探索直接依赖兼容性。复制 `environment.example.json` 到工具目录外的本地清单，例如 `environment.local.json`，填写当前命令和版本/hash；不要把真实绝对路径提交到公共仓库。已有可用环境时无需重复安装，只需每次证据运行重新确认版本和实现 hash。
+
+`WaveMode=Detect` 完全只读；`WaveMode=Prepare` 只在已存在的 WSL 发行版与 Python 上准备 venv。WSL 不存在时返回 `PARTIAL_WSL_REQUIRED` 并给出建议，不执行 `wsl --install`。未配置 `vcd2fst` 时仍可查询已有 FST，但 VCD→FST 保持未配置。
+
+如果发行版默认 `python3` 缺少 `venv/ensurepip`，脚本返回 `PARTIAL_PYTHON_VENV_REQUIRED`。可以在用户单独授权后安装对应发行版 venv 包，或用 `-WslPython` 指向已经存在且支持 `python -m venv` 的独立 Python。
+
+已经有完整 wave-mcp venv 时，可用 `-ExistingWavePython <venv/bin/python>` 复用并核对版本；受限网络可以用 `-Wheelhouse <Windows 目录>` 从本地 wheel 安装。仓库本身不携带 wheelhouse 或 venv。
+
+仅提供 `-Vcd2FstPath` 时转换器状态为 `CONFIGURED_UNVERIFIED`。再加 `-RunWaveSmoke`，脚本会在系统临时目录执行合成 VCD→FST→wave-mcp 查询并清理工件；只有该链通过才报告 `READY_WITH_VCD_CONVERTER`。
 
 参见：[wave-mcp 可选集成](../integrations/wave-mcp/README.md)。
 

@@ -22,7 +22,7 @@
 - 标准工程目录和原生 BAT 工具流；
 - Xilinx/Pango/Anlogic 识别；
 - 私有故障库 schema/config/query 能力；
-- 46 个 Skill 文件、11 个 schema、6 个确定性 Skill 脚本；
+- `run-fpga-workflow` 仍为 46 个文件、11 个 schema、6 个确定性工程脚本；插件另含显式部署 Skill和 3 个部署/环境脚本；
 - 按需波形观察、波形可选性状态、observed/expected/checker 分权和本地 wave-mcp 可选集成边界。
 
 机器可读清单见 [CAPABILITY-MANIFEST.json](../CAPABILITY-MANIFEST.json)。

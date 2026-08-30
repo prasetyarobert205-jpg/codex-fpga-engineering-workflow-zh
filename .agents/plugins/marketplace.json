@@ -1,0 +1,21 @@
+{
+  "name": "codex-fpga-zh",
+  "interface": {
+    "displayName": "中文 FPGA 工程工作流"
+  },
+  "plugins": [
+    {
+      "name": "codex-fpga-engineering-workflow-zh",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/prasetyarobert205-jpg/codex-fpga-engineering-workflow-zh.git",
+        "ref": "v1.2.0"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0.0",
-  "package_version": "1.1.0",
+  "package_version": "1.2.0",
   "baseline": "sanitized-live-local-fpga-workflow-2026-08-30",
   "roles": {
     "count": 13,
@@ -33,6 +33,14 @@
     "PHYSICAL_IMPLEMENTATION", "RELEASE_PACKAGING"
   ],
   "supported_vendor_detection": ["XILINX", "PANGO", "ANLOGIC"],
+  "plugin_distribution": {
+    "skills": ["run-fpga-workflow", "setup-fpga-workflow"],
+    "github_marketplace": true,
+    "marketplace_ref": "v1.2.0",
+    "bootstrap_scripts": 3,
+    "default_user_install_overwrite": false,
+    "default_install_wsl": false
+  },
   "skill_contract": {
     "files": 46,
     "schemas": 11,
@@ -52,7 +60,7 @@
     "wave_mcp": {
       "tested_version": "0.1.1",
       "tested_direct_dependencies": {"mcp": "2.1.1", "pylibfst": "0.2.1", "pyslang": "11.0.0"},
-      "included_surface": ["environment_template", "tested_environment_summary", "point_range_adapter", "third_party_license"],
+      "included_surface": ["environment_template", "tested_environment_summary", "point_range_adapter", "optional_environment_bootstrap", "third_party_license"],
       "full_upstream_source_included": false,
       "machine_absolute_paths_included": false,
       "verified_claim": "ONE_PROJECT_DIAGNOSTIC_SMOKE",

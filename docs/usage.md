@@ -2,6 +2,21 @@
 
 [中文导航](README.md) · [安装](installation.md) · [架构](architecture.md) · [角色](roles.md)
 
+## 把仓库地址交给 Codex 部署
+
+```text
+请从这个仓库的 v1.2.0 安装中文 FPGA 工作流：
+https://github.com/prasetyarobert205-jpg/codex-fpga-engineering-workflow-zh
+
+用户级部署 13 个 FPGA 角色和 Skill；已有可用 WSL/Python 时用 WaveMode=Prepare 准备 wave-mcp 环境。先做 WhatIf；安装系统组件、覆盖已有不同文件、写入全局 AGENTS.md 或修改全局 PATH 前必须先问我。
+```
+
+安装插件后也可以明确调用：
+
+```text
+使用 $setup-fpga-workflow，用户级部署角色和 Skill；WaveMode=Detect，不自动安装 WSL。
+```
+
 ## 安装后最简单的一句话
 
 ```text
