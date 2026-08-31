@@ -8,7 +8,7 @@
 
 [![CI](https://github.com/prasetyarobert205-jpg/codex-fpga-engineering-workflow-zh/actions/workflows/validate.yml/badge.svg)](https://github.com/prasetyarobert205-jpg/codex-fpga-engineering-workflow-zh/actions/workflows/validate.yml)
 [![MIT License](https://img.shields.io/badge/License-MIT-16a34a.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.2.1-2457c5.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.3.0-2457c5.svg)](CHANGELOG.md)
 [![中文](https://img.shields.io/badge/文档-简体中文-e11d48.svg)](docs/README.md)
 
 **13 个 FPGA 专用角色 · 单一产品实现者 · 多专项独立监督 · 逐拍 RTL 推理 · CDC/RDC/STA · 官方 IP · 三厂商工具流 · 独立终审**
@@ -278,6 +278,16 @@ FPGA 工程可能包含数百个 RTL 文件、多个时钟域、大量 IP、复�
 
 只有根因确认、修复已验证、适用条件和反例明确，并具备必要真实工程证据的案例，才允许晋级跨项目复用。
 
+#### 按需触发，不污染普通 FPGA 任务
+
+- `OFF`：普通新功能、代码评审、专项签核和根因已冻结的实现阶段默认不查询历史库；
+- `AFTERSALES_TRIAGE`：仅在用户明确提出售后/现场故障、跨部门归属未知、首次修复无进展或失败签名改变时，查询 `IMPORTED` 等未确认历史候选；
+- `FORMAL_REUSE`：只查询满足完整准入条件的 `REUSABLE` 案例。
+
+本机私有路径只写入未提交 Git 的 local config；配置缺失、禁用、路径无效或格式不兼容时 fail closed，不猜路径或扫描磁盘。查询结果最多返回 3～5 个去标识候选，只包含 case ID、证据状态、命中字段和责任域候选，不回写原始查询、客户资料、源文档路径或自由文本过滤值。
+
+使用方法、跨部门分诊、配置示例、转换提示词和安全测试见[私有售后故障知识库](docs/after-sales-fault-library.md)。
+
 ## 工作流程
 
 ```mermaid
@@ -444,7 +454,7 @@ CDC、IP、接口、时序或高风险修改
 ### 把仓库地址直接交给 Codex
 
 ```text
-请从这个仓库的 v1.2.1 安装中文 FPGA 工作流：
+请从这个仓库的 v1.3.0 安装中文 FPGA 工作流：
 https://github.com/prasetyarobert205-jpg/codex-fpga-engineering-workflow-zh
 
 用户级部署 13 个 FPGA 角色和 Skill；已有可用 WSL/Python 时准备 wave-mcp 环境，没有 WSL 或缺少 python venv 时先告诉我需要什么。安装系统组件、覆盖已有不同文件或修改全局 PATH 前必须先问我。
@@ -455,7 +465,7 @@ Codex 会先验证包并执行 `bootstrap.ps1 -WhatIf`，再在授权范围内�
 也可以先加入 Plugin Marketplace：
 
 ```bash
-codex plugin marketplace add prasetyarobert205-jpg/codex-fpga-engineering-workflow-zh --ref v1.2.1
+codex plugin marketplace add prasetyarobert205-jpg/codex-fpga-engineering-workflow-zh --ref v1.3.0
 codex plugin add codex-fpga-engineering-workflow-zh@codex-fpga-zh --json
 ```
 

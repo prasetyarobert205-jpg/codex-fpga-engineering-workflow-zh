@@ -13,7 +13,7 @@ $required = @(
     '.codex-plugin/plugin.json', '.agents/plugins/marketplace.json', 'README.md', 'INSTALL_WITH_CODEX.md', 'AGENTS.md', 'LICENSE', 'THIRD_PARTY-NOTICES.md', 'VERSION', 'CAPABILITY-MANIFEST.json',
     'CHANGELOG.md', 'COMPATIBILITY.md', 'CONTRIBUTING.md', 'SECURITY.md', 'assets/hero.svg',
     'docs/README.md', 'docs/architecture.md', 'docs/advantages.md', 'docs/roles.md',
-    'docs/installation.md', 'docs/usage.md', 'docs/safety-and-evidence.md', 'docs/public-private-boundary.md',
+    'docs/installation.md', 'docs/usage.md', 'docs/safety-and-evidence.md', 'docs/public-private-boundary.md', 'docs/after-sales-fault-library.md',
     'docs/waveform-observation.md',
     'docs/capability-equivalence.md',
     'templates/AGENTS.fpga.md', 'templates/fault-library.config.example.json',
@@ -42,6 +42,13 @@ $required = @(
     'scripts/detect-vendor.ps1', 'scripts/update-filelists.ps1', 'scripts/preflight-project.ps1',
     'scripts/prepare-vendor-libraries.ps1', 'scripts/new-fpga-project.ps1', 'scripts/fault-library.ps1',
     'scripts/validate-simulation-evidence.ps1',
+    'tests/fault-library/README.md', 'tests/fault-library/canaries.json', 'tests/fault-library/run-fault-library-canaries.ps1',
+    'tests/fault-library/fixtures/synth-fpga-imported.json', 'tests/fault-library/fixtures/synth-nonlogic-imported.json',
+    'tests/fault-library/fixtures/synth-valid-reusable.json', 'tests/fault-library/fixtures/synth-rejected.json',
+    'tests/fault-library/fixtures/synth-fake-reusable.json', 'tests/fault-library/fixtures/synth-duplicate-a.json',
+    'tests/fault-library/fixtures/synth-duplicate-b.json', 'tests/fault-library/fixtures/synth-prompt-injection.json',
+    'tests/fault-library/fixtures/malformed.json',
+    'examples/aftersales-triage.prompt.md', 'examples/convert-aftersales-documents.prompt.md', 'examples/review-fault-case.prompt.md',
     'templates/fpga-project/common/README.md.template',
     'templates/fpga-project/common/AGENTS.md',
     'templates/fpga-project/common/build-run.bat.template',
@@ -114,7 +121,7 @@ if ($null -ne $marketplace) {
     else {
         $entry = $marketplace.plugins[0]
         if ($entry.name -ne 'codex-fpga-engineering-workflow-zh' -or $entry.source.source -ne 'url') { Add-CheckError 'Marketplace 插件名或 root URL source 不正确。' }
-        if ($entry.source.url -ne 'https://github.com/prasetyarobert205-jpg/codex-fpga-engineering-workflow-zh.git' -or $entry.source.ref -ne 'v1.2.1') { Add-CheckError 'Marketplace URL/ref 未冻结到 v1.2.1。' }
+        if ($entry.source.url -ne 'https://github.com/prasetyarobert205-jpg/codex-fpga-engineering-workflow-zh.git' -or $entry.source.ref -ne 'v1.3.0') { Add-CheckError 'Marketplace URL/ref 未冻结到 v1.3.0。' }
         if ($entry.policy.installation -ne 'AVAILABLE' -or $entry.policy.authentication -ne 'ON_INSTALL' -or [string]::IsNullOrWhiteSpace($entry.category)) { Add-CheckError 'Marketplace policy/category 不完整。' }
     }
 }
@@ -129,7 +136,8 @@ if ($null -ne $capability) {
     if ($capability.skill_contract.files -ne 46 -or $capability.skill_contract.schemas -ne 11 -or $capability.skill_contract.deterministic_scripts -ne 6) {
         Add-CheckError '能力清单 Skill 文件、schema 或脚本计数不正确。'
     }
-    if (@($capability.plugin_distribution.skills).Count -ne 2 -or -not $capability.plugin_distribution.github_marketplace -or $capability.plugin_distribution.marketplace_ref -ne 'v1.2.1' -or $capability.plugin_distribution.bootstrap_scripts -ne 3) { Add-CheckError '能力清单的 Plugin/部署合同不正确。' }
+    if (@($capability.plugin_distribution.skills).Count -ne 2 -or -not $capability.plugin_distribution.github_marketplace -or $capability.plugin_distribution.marketplace_ref -ne 'v1.3.0' -or $capability.plugin_distribution.bootstrap_scripts -ne 3) { Add-CheckError '能力清单的 Plugin/部署合同不正确。' }
+    if ($capability.private_fault_library.default_mode -ne 'OFF' -or @($capability.private_fault_library.query_modes).Count -ne 3 -or -not $capability.private_fault_library.rejected_cases_never_match -or $capability.private_fault_library.raw_query_or_filter_values_stored -ne $false -or $capability.private_fault_library.maximum_matches -ne 5) { Add-CheckError '能力清单的私有故障库合同不正确。' }
     if ($capability.plugin_distribution.default_user_install_overwrite -ne $false -or $capability.plugin_distribution.default_install_wsl -ne $false) { Add-CheckError '能力清单错误放宽了默认覆盖或 WSL 安装。' }
 }
 
@@ -146,7 +154,7 @@ foreach ($reference in @(
 foreach ($token in @(
     'ANALYZE','QUICK','FULL','DIAGNOSTIC_SMOKE','FUNCTIONAL_ACCEPTANCE','SPECIALIST_ACCEPTANCE',
     'RTL_IMPLEMENTATION','IP_INTEGRATION','BUILD_FLOW','PHYSICAL_IMPLEMENTATION','RELEASE_PACKAGING',
-    'project/par','simulation/work','codex_out','最多三轮','NEEDS_PARTITION'
+    'project/par','simulation/work','codex_out','最多三轮','NEEDS_PARTITION','AFTERSALES_TRIAGE','FORMAL_REUSE'
 )) {
     if ($skillText -notmatch [regex]::Escape($token)) { Add-CheckError "Skill 缺少关键合同：$token" }
 }
@@ -166,7 +174,7 @@ $setupMetadata = Get-Content -LiteralPath (Join-Path $root 'skills\setup-fpga-wo
 if ($setupMetadata -notmatch 'allow_implicit_invocation:\s*true') { Add-CheckError '部署 Skill 必须可被当前 Codex 新会话发现；实际写入仍由 Skill 内授权门控制。' }
 if ($setupMetadata -notmatch [regex]::Escape('$setup-fpga-workflow')) { Add-CheckError '部署 Skill default_prompt 必须显式包含 $setup-fpga-workflow。' }
 $setupSource = Get-Content -LiteralPath (Join-Path $root 'skills\setup-fpga-workflow\references\source.json') -Raw -Encoding UTF8 | ConvertFrom-Json
-if ($setupSource.package -ne 'codex-fpga-engineering-workflow-zh' -or $setupSource.version -ne $version -or $setupSource.ref -ne 'v1.2.1' -or $setupSource.repository -ne 'https://github.com/prasetyarobert205-jpg/codex-fpga-engineering-workflow-zh.git') { Add-CheckError '部署 Skill 的固定 source manifest 不正确。' }
+if ($setupSource.package -ne 'codex-fpga-engineering-workflow-zh' -or $setupSource.version -ne $version -or $setupSource.ref -ne 'v1.3.0' -or $setupSource.repository -ne 'https://github.com/prasetyarobert205-jpg/codex-fpga-engineering-workflow-zh.git') { Add-CheckError '部署 Skill 的固定 source manifest 不正确。' }
 
 $simulationSchema = Join-Path $root 'skills\run-fpga-workflow\references\schemas\simulation-evidence.schema.json'
 function Test-SimulationSchema([hashtable]$Document) {
@@ -326,6 +334,49 @@ $wavePublicText = @(
 ) -join "`n"
 if ($wavePublicText -match '(?i)[A-Z]:\\|/mnt/[a-z]/|C:\\Users\\|D:\\PDS') { Add-CheckError 'wave-mcp 公开文档或实测清单包含机器/项目绝对路径。' }
 
+$faultConfigSkill = Get-Content -LiteralPath (Join-Path $root 'skills\run-fpga-workflow\references\fault-library.config.example.json') -Raw -Encoding UTF8
+$faultConfigTemplate = Get-Content -LiteralPath (Join-Path $root 'templates\fault-library.config.example.json') -Raw -Encoding UTF8
+if ($faultConfigSkill -ne $faultConfigTemplate) { Add-CheckError '两个公开 fault-library config example 不一致。' }
+try { $faultConfig = $faultConfigSkill | ConvertFrom-Json }
+catch { Add-CheckError 'fault-library config example 不是有效 JSON。'; $faultConfig = $null }
+if ($null -ne $faultConfig) {
+    if ($faultConfig.schema_version -ne '1.1.0' -or $faultConfig.enabled -ne $false -or $faultConfig.default_mode -ne 'OFF' -or $faultConfig.allow_after_sales_triage -ne $false -or -not [string]::IsNullOrWhiteSpace([string]$faultConfig.private_library_root) -or $faultConfig.top_n -ne 5 -or $faultConfig.copy_source_documents -ne $false) {
+        Add-CheckError 'fault-library config example 没有保持禁用、空路径和安全默认值。'
+    }
+}
+
+$faultEngine = Get-Content -LiteralPath (Join-Path $root 'skills\run-fpga-workflow\scripts\find-fpga-fault-case.ps1') -Raw -Encoding UTF8
+foreach ($token in @('OFF','AFTERSALES_TRIAGE','FORMAL_REUSE','REJECTED','Trigger','TopN','duplicate case_id','raw_query_stored','filters_supplied','library_files_scanned','matched_fields','OUTPUT_SCOPE_FAIL')) {
+    if ($faultEngine -notmatch [regex]::Escape($token)) { Add-CheckError "fault-library canonical query 缺少合同：$token" }
+}
+if ($faultEngine -match 'matched_terms\s*=|query_sha256\s*=|normalized_error_signature\s*=\s*\$case|symptom\s*=\s*\$case|source_hash\s*=|record_hash\s*=') { Add-CheckError 'fault-library query 输出疑似包含禁止的源文本/hash 字段。' }
+
+$fixtureRoot = Join-Path $root 'tests\fault-library\fixtures'
+foreach ($fixture in Get-ChildItem -LiteralPath $fixtureRoot -Filter '*.json' -File) {
+    if ($fixture.Name -eq 'malformed.json') { continue }
+    try { $case = Get-Content -LiteralPath $fixture.FullName -Raw -Encoding UTF8 | ConvertFrom-Json }
+    catch { Add-CheckError "合成 fault fixture 不是有效 JSON：$($fixture.Name)"; continue }
+    if ([string]$case.case_id -notmatch '^SYNTH_' -or $case.confidentiality -ne 'PUBLIC_SYNTHETIC' -or $case.test_fixture -ne $true) { Add-CheckError "fault fixture 不是公开合成数据：$($fixture.Name)" }
+}
+
+$trackedPublicText = @(
+    Get-ChildItem -LiteralPath $root -File -Recurse | Where-Object { $_.Extension -in @('.md','.json','.ps1','.yaml','.yml','.toml','.txt') -and $_.FullName -ne $PSCommandPath } | ForEach-Object { Get-Content -LiteralPath $_.FullName -Raw -Encoding UTF8 }
+) -join "`n"
+if ($trackedPublicText -match 'D:\\售后AI知识库|P20\d{8,}|售后AI知识库_AI专用导入版') { Add-CheckError '公开树疑似包含真实售后目录、案例 ID 或包名。' }
+
+$forbiddenPrivateExtensions = @('.doc','.docx','.docm','.xls','.xlsx','.xlsm','.ppt','.pptx','.pptm','.pdf','.zip','.7z','.rar','.mp4','.mov','.avi','.mkv','.jpg','.jpeg','.png','.webp','.xmind','.vsdx','.bit','.bin','.mcs','.vcd','.fst','.wlf')
+$gitPrivatePrefix = (Join-Path $root '.git').TrimEnd([IO.Path]::DirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar
+foreach ($file in Get-ChildItem -LiteralPath $root -File -Recurse | Where-Object { -not $_.FullName.StartsWith($gitPrivatePrefix, [StringComparison]::OrdinalIgnoreCase) -and $_.Extension.ToLowerInvariant() -in $forbiddenPrivateExtensions }) {
+    Add-CheckError "公开树包含禁止的私有/二进制资料类型：$(Get-PortablePath $file.FullName)"
+}
+
+if (-not $NoRuntimeCanaries) {
+    try {
+        $faultCanary = & (Join-Path $root 'tests\fault-library\run-fault-library-canaries.ps1')
+        if ($faultCanary.status -ne 'ASSERTIONS_SATISFIED' -or $faultCanary.failed -ne 0) { Add-CheckError 'fault-library 合成 canary 未通过。' }
+    } catch { Add-CheckError "fault-library 合成 canary 失败：$($_.Exception.Message)" }
+}
+
 $allTextFiles = Get-ChildItem -LiteralPath $root -File -Recurse | Where-Object {
     ($_.Extension -in @('.md','.toml','.json','.yaml','.yml','.ps1','.psd1','.py','.svg','.txt','.template','.bat','.do') -or
     ($_.Name -like 'LICENSE*') -or $_.Name -in @('VERSION','.gitignore','.gitattributes')) -and $_.FullName -ne $PSCommandPath
@@ -358,4 +409,5 @@ if ($errors.Count -gt 0) {
 }
 
 $validationKind = if ($NoRuntimeCanaries) { '静态包验证' } else { '完整包验证' }
-Write-Host "$validationKind 通过：版本 $version；13 个角色（10 只读、3 条件写入）；2 个插件 Skill；46 个 FPGA Skill 文件、11 个 schema、6 个确定性工程脚本；GitHub marketplace、3 个部署/环境脚本、按需波形观察、UTF-8、隐私和公开内容检查全部通过。"
+$faultValidation = if ($NoRuntimeCanaries) { '私有故障库静态合同' } else { '私有故障库合成 canary' }
+Write-Host "$validationKind 通过：版本 $version；13 个角色（10 只读、3 条件写入）；2 个插件 Skill；46 个 FPGA Skill 文件、11 个 schema、6 个确定性工程脚本；GitHub marketplace、3 个部署/环境脚本、按需波形观察、$faultValidation、UTF-8、隐私和公开内容检查全部通过。"

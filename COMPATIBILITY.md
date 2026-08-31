@@ -1,6 +1,6 @@
 # 兼容性与验证边界
 
-包版本：**1.2.1**
+包版本：**1.3.0**
 
 ## 包格式
 
@@ -22,6 +22,7 @@
 - wave-mcp 0.1.1 的可选 point/range 公开 API 适配层和脱敏环境模板；
 - GitHub 地址、Plugin Marketplace 或 `bootstrap.ps1` 驱动的角色/Skill 部署；
 - 已有 WSL 发行版上的可选 wave-mcp venv 准备与本地 environment manifest。
+- 私有故障库 `OFF / AFTERSALES_TRIAGE / FORMAL_REUSE`、v1.2.1 配置字段兼容读取和全合成隐私/误匹配 canary。
 
 ## 仍需按项目验证
 
@@ -32,6 +33,7 @@
 - 第二个独立波形工程、Pango/Anlogic 实际查询链、WDB/FSDB/native WLF 直接读取、完整 X/Z/aggregate 和官方 IP 功能接受；
 - 自动安装 WSL 发行版、系统重启恢复和无用户确认的管理员操作；
 - 未配置 `vcd2fst` 时的 VCD→FST 能力。
-- 非默认 `CODEX_HOME` 下的用户级角色与 `.agents` Skill 联合发现路径；1.2.1 对此 fail-closed，建议使用明确 Project scope。
+- 非默认 `CODEX_HOME` 下的用户级角色与 `.agents` Skill 联合发现路径；当前版本对此 fail-closed，建议使用明确 Project scope。
+- 真实售后格式的 importer、客户私有资料质量、历史根因/修复/上板结论和任何真实 `REUSABLE` 案例。
 
 包验证通过只能证明包结构、脚本语法、schema、模板和安装合同；不能替代真实 EDA 证据。

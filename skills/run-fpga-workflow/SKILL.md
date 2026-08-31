@@ -140,7 +140,9 @@ linter/script/run.bat [all|verilator|svlint]
 
 ### 11. 私有故障库
 
-诊断时可选使用 `scripts/find-fpga-fault-case.ps1` 和[私有故障库规则](references/private-fault-library.md)。匹配只是调查候选，必须用当前 target、版本、clock/reset、接口、IP mode、trigger、日志和报告重新验证。原始售后文档、客户信息和项目事实不得进入本 Skill、Memory、公开仓库或普通项目文档。
+私有故障库默认 `OFF`。只有用户明确提出售后/现场故障、跨部门归属未知、首次修复无进展后重建根因，或失败签名改变时，才选择 `AFTERSALES_TRIAGE`；普通开发、评审/签核和根因已冻结的实现阶段默认不查历史。`FORMAL_REUSE` 只返回 `REUSABLE`。
+
+使用 `scripts/find-fpga-fault-case.ps1` 和[私有故障库规则](references/private-fault-library.md)。配置缺失、禁用、路径无效或格式不兼容时 fail closed，不猜路径或扫描磁盘。`REJECTED` 永不返回；最多输出 3～5 个去标识候选，不保存原始 query/filter、源正文、路径或 hash。匹配只是调查候选，必须用当前 target、版本、clock/reset、接口、IP mode、trigger、日志和报告重新验证。原始售后文档、客户信息和项目事实不得进入本 Skill、Memory、公开仓库或普通项目文档。
 
 ### 12. 轻量持续改进
 

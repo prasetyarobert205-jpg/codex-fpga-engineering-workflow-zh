@@ -5,7 +5,7 @@
 ## 把仓库地址交给 Codex 部署
 
 ```text
-请从这个仓库的 v1.2.1 安装中文 FPGA 工作流：
+请从这个仓库的 v1.3.0 安装中文 FPGA 工作流：
 https://github.com/prasetyarobert205-jpg/codex-fpga-engineering-workflow-zh
 
 用户级部署 13 个 FPGA 角色和 Skill；已有可用 WSL/Python 时用 WaveMode=Prepare 准备 wave-mcp 环境。先做 WhatIf；安装系统组件、覆盖已有不同文件、写入全局 AGENTS.md 或修改全局 PATH 前必须先问我。
@@ -24,6 +24,16 @@ https://github.com/prasetyarobert205-jpg/codex-fpga-engineering-workflow-zh
 ```
 
 用户不需要手工指定 13 个角色；Skill 会按任务路由必要角色。
+
+## 售后/现场故障候选检索
+
+```text
+使用 $run-fpga-workflow。这是一个 FPGA 或直接相关的售后/现场故障。
+使用 AFTERSALES_TRIAGE，只读查询本机私有故障库；配置缺失或禁用时停止，
+不要猜路径。只返回 3～5 个候选、差异、反例、责任域和区分测量，不修改文件。
+```
+
+详细边界见[私有售后故障知识库](after-sales-fault-library.md)。
 
 ## 第一次进入工程的推荐提示词
 

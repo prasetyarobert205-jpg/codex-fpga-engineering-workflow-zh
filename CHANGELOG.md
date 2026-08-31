@@ -2,6 +2,29 @@
 
 版本遵循语义化版本。未执行的 EDA、DUT、CDC/STA、bitstream 和板级检查不因包版本发布而变成已验证。
 
+## 1.3.0 - 2026-08-31
+
+### 新增
+
+- 私有故障库增加 `OFF / AFTERSALES_TRIAGE / FORMAL_REUSE` 三种查询模式；
+- README 第 8 节增加按需触发、本机配置和跨部门分诊入口；
+- 新增售后故障知识库文档，以及查询、转换和案例晋级三个中文提示词；
+- 新增全合成 fault-library 正向、hard-negative、隐私和 mutation canary。
+
+### 修复
+
+- 收敛两套不一致的配置示例，生成 canonical `1.1.0` 禁用配置，同时兼容读取 v1.2.1 `library_root`；
+- `REJECTED` 无条件排除，重复 case ID fail closed，`FORMAL_REUSE` 只返回证据完整的 `REUSABLE`；
+- 增加 Trigger、Top-N 和输出范围检查；未授权 `OutputPath` 时只返回 stdout，不强制写项目文件；
+- 查询输出改为固定白名单，不保存原始 query/filter、matched terms、源正文、路径或 hash；
+- `REUSABLE` schema/脚本最低门统一要求根因、修复、verification、evidence、applicability、counterexample、独立复核和 board disposition。
+
+### 隐私与边界
+
+- 仓库只包含 `SYNTH_* / PUBLIC_SYNTHETIC` 测试数据，不包含真实售后 case、客户资料、本机路径、已填写 local config 或 review 报告；
+- 公开包只提供转换提示词，不发布真实格式专用 importer；
+- 历史匹配仍只是调查候选，不能替代当前工程证据或扩大任何修改权限。
+
 ## 1.2.1 - 2026-08-31
 
 ### 修复

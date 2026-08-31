@@ -1,0 +1,20 @@
+{
+  "schema_version": "0.3",
+  "case_id": "SYNTH_DUPLICATE",
+  "status": "IMPORTED",
+  "source_document": "synthetic://fault/duplicate-b",
+  "confidentiality": "PUBLIC_SYNTHETIC",
+  "vendor": "GENERIC_VENDOR",
+  "subsystem": "UNKNOWN",
+  "normalized_error_signature": "synthduplicateonly",
+  "symptom": "synthduplicateonly",
+  "trigger": "synthduplicateonly",
+  "root_cause": "synthetic duplicate",
+  "diagnostic_path": [],
+  "repair_principle": "synthetic duplicate",
+  "verification": [],
+  "applicability": [],
+  "counterexamples": [],
+  "evidence_hashes": [],
+  "test_fixture": true
+}

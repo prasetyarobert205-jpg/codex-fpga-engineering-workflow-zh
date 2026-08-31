@@ -1,9 +1,11 @@
 {
-  "schema_version": "1.0.0",
+  "schema_version": "1.1.0",
   "enabled": false,
   "private_library_root": "",
-  "minimum_status": "REUSABLE",
+  "default_mode": "OFF",
+  "allow_after_sales_triage": false,
+  "top_n": 5,
   "query_output_relative": "codex_out/<run-id>/knowledge/matches.json",
   "copy_source_documents": false,
-  "notes": "只在本机填写私有路径。匹配只是调查候选，不能替代当前工程证据。"
+  "notes": "只在未提交 Git 的本机副本中填写私有路径。历史匹配不能替代当前工程证据。"
 }

@@ -12,6 +12,7 @@
 - 公开官方资料支持的通用原则；
 - 去标识且证据闭环的工作流改进。
 - 去除绝对路径、项目名和用户信息后的第三方工具版本/hash、API 使用面与环境模板。
+- 禁用的私有故障库配置示例、去标识查询逻辑、转换提示词和全合成 canary。
 
 ## 必须留在本机或项目内
 
@@ -24,6 +25,7 @@
 - 未完成根因闭环的一次性 workaround；
 - 某个旧 snapshot 的“已通过”状态。
 - 实际 Python/WSL venv、完整第三方源码副本、转换器二进制和机器本地环境清单。
+- 已填写的 fault-library local config、真实 case ID/hash、查询/review 报告、客户图片/视频/日志和源 RAG。
 
 公开 `tested-environment.json` 只能描述可复现能力边界，例如 Python/wave-mcp 版本、实现 hash、使用过的 API 和未验证项；真实的工具根、发行版路径、项目路径和可执行文件位置必须写入用户自己的 `environment.local.json`，并由 `.gitignore` 排除。
 
@@ -39,5 +41,6 @@
 - 禁用的配置示例；
 - 查询与校验脚本；
 - `REUSABLE` 证据最低条件。
+- 只含 `SYNTH_*`/`PUBLIC_SYNTHETIC` 的正负、隐私和 mutation canary。
 
-用户在本机配置私有目录；查询结果只保存去标识候选到当前项目 `codex_out/<run-id>/knowledge/`。匹配不能替代当前工程验证。
+用户在未提交 Git 的本机配置中填写私有目录。查询默认 stdout；只有明确授权诊断工件时，才把去标识候选写入当前项目 `codex_out/<run-id>/knowledge/`。匹配不能替代当前工程验证。

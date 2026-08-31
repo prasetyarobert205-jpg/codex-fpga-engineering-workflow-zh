@@ -15,7 +15,7 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: '3.13'
-      - name: 验证角色、Skill、schema、脚本和公开内容
+      - name: 验证角色、Skill、schema、故障库 canary、脚本和公开内容
         shell: pwsh
         run: ./scripts/validate-package.ps1
       - name: Smoke 测试 GitHub 地址部署入口

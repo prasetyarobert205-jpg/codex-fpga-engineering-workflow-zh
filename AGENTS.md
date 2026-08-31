@@ -12,3 +12,4 @@
 - 用户双击入口使用 BAT + 已确认厂商 Tcl/DO/CLI；不得依赖 Codex 私有 `pwsh.exe`，不得在公开模板写死绝对工具 executable。
 - 本仓库的 `templates/AGENTS.fpga.md` 是可选用户/项目门禁模板，安装器不得默认覆盖已有 `AGENTS.md`。
 - `skills/run-fpga-workflow/references/improvement-evidence.md` 只保留公开空白模板，不得复制维护者本机治理历史。
+- 私有故障库的公开测试、示例和 canary 只能使用合成数据；已填写的 local config、真实 case ID/hash、客户资料和本机报告不得提交。

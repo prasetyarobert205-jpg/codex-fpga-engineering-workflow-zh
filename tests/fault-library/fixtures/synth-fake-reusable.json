@@ -1,0 +1,21 @@
+{
+  "schema_version": "0.3",
+  "case_id": "SYNTH_FAKE_REUSABLE",
+  "status": "REUSABLE",
+  "source_document": "synthetic://fault/fake-reusable",
+  "confidentiality": "PUBLIC_SYNTHETIC",
+  "vendor": "GENERIC_VENDOR",
+  "subsystem": "FPGA_RTL_CANDIDATE",
+  "normalized_error_signature": "synthfakereusableonly",
+  "symptom": "synthfakereusableonly",
+  "trigger": "synthfakereusableonly",
+  "root_cause": "synthetic claim",
+  "diagnostic_path": [],
+  "repair_principle": "synthetic repair claim",
+  "verification": [],
+  "board_confirmation": null,
+  "applicability": [],
+  "counterexamples": [],
+  "evidence_hashes": [],
+  "test_fixture": true
+}

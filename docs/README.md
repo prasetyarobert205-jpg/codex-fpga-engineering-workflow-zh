@@ -15,6 +15,7 @@
 | [AI 按需读取 FPGA 波形](waveform-observation.md) | observed/expected/checker 分权、局部窗口、trusted runner、wave-mcp 可选集成与环境边界 |
 | [证据与安全](safety-and-evidence.md) | 证据阶梯、声明语言、CDC/STA/功耗和板级边界 |
 | [公开与私有边界](public-private-boundary.md) | GitHub 可以包含什么，哪些信息必须留在本机 |
+| [私有售后故障知识库](after-sales-fault-library.md) | 按需触发、跨部门分诊、本机配置、转换提示词和案例晋级 |
 | [能力等价范围](capability-equivalence.md) | 与本机权限和能力保持一致的机器可核对合同 |
 
 推荐新用户顺序：
