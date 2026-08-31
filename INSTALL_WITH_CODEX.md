@@ -5,20 +5,20 @@
 ## 最短提示词
 
 ```text
-请从这个仓库的 v1.2.0 安装中文 FPGA 工作流：
+请从这个仓库的 v1.2.1 安装中文 FPGA 工作流：
 https://github.com/prasetyarobert205-jpg/codex-fpga-engineering-workflow-zh
 
 用户级部署 13 个 FPGA 角色和 Skill；已有可用 WSL/Python 时准备 wave-mcp 环境，没有 WSL 或缺少 python venv 时先告诉我需要什么。安装系统组件、覆盖已有不同文件或修改全局 PATH 前必须先问我。
 ```
 
-Codex 应当固定 `v1.2.0`，先运行包验证和 `bootstrap.ps1 -WhatIf`，然后在已授权范围内使用 `WaveMode=Prepare` 安装并核对 SHA-256。未安装 WSL 时，角色安装仍可完成，最终状态为 `PARTIAL`。
+Codex 应当固定 `v1.2.1`，先运行包验证和 `bootstrap.ps1 -WhatIf`，然后在已授权范围内使用 `WaveMode=Prepare` 安装并核对 SHA-256。未安装 WSL 时，角色安装仍可完成，最终状态为 `PARTIAL`。
 
 ## Codex Plugin Marketplace
 
 Codex CLI 支持从 GitHub 仓库添加 marketplace：
 
 ```bash
-codex plugin marketplace add prasetyarobert205-jpg/codex-fpga-engineering-workflow-zh --ref v1.2.0
+codex plugin marketplace add prasetyarobert205-jpg/codex-fpga-engineering-workflow-zh --ref v1.2.1
 codex plugin add codex-fpga-engineering-workflow-zh@codex-fpga-zh --json
 ```
 

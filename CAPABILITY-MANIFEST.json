@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0.0",
-  "package_version": "1.2.0",
+  "package_version": "1.2.1",
   "baseline": "sanitized-live-local-fpga-workflow-2026-08-30",
   "roles": {
     "count": 13,
@@ -36,7 +36,7 @@
   "plugin_distribution": {
     "skills": ["run-fpga-workflow", "setup-fpga-workflow"],
     "github_marketplace": true,
-    "marketplace_ref": "v1.2.0",
+    "marketplace_ref": "v1.2.1",
     "bootstrap_scripts": 3,
     "default_user_install_overwrite": false,
     "default_install_wsl": false

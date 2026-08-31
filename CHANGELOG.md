@@ -2,6 +2,19 @@
 
 版本遵循语义化版本。未执行的 EDA、DUT、CDC/STA、bitstream 和板级检查不因包版本发布而变成已验证。
 
+## 1.2.1 - 2026-08-31
+
+### 修复
+
+- 修复 `setup-fpga-workflow` 在当前 Codex 插件会话中不可发现的问题；
+- 将部署 Skill 恢复为正常自动发现，仍只在用户明确提出安装、部署、升级、检查或卸载请求时执行；
+- Skill 被加载不构成写入授权，`WhatIf`、冲突拒绝、WSL/系统安装确认和全局路径保护保持不变。
+
+### 证据
+
+- `v1.2.0` 的 Marketplace、Plugin cache 和 `run-fpga-workflow` 已实际加载；
+- `codex debug prompt-input` 证明 explicit-only 的 setup Skill 没有进入模型上下文，因此发布 1.2.1 补丁，而不移动旧 tag。
+
 ## 1.2.0 - 2026-08-30
 
 ### 新增

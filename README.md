@@ -8,7 +8,7 @@
 
 [![CI](https://github.com/prasetyarobert205-jpg/codex-fpga-engineering-workflow-zh/actions/workflows/validate.yml/badge.svg)](https://github.com/prasetyarobert205-jpg/codex-fpga-engineering-workflow-zh/actions/workflows/validate.yml)
 [![MIT License](https://img.shields.io/badge/License-MIT-16a34a.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.2.0-2457c5.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.2.1-2457c5.svg)](CHANGELOG.md)
 [![中文](https://img.shields.io/badge/文档-简体中文-e11d48.svg)](docs/README.md)
 
 **13 个 FPGA 专用角色 · 单一产品实现者 · 多专项独立监督 · 逐拍 RTL 推理 · CDC/RDC/STA · 官方 IP · 三厂商工具流 · 独立终审**
@@ -444,7 +444,7 @@ CDC、IP、接口、时序或高风险修改
 ### 把仓库地址直接交给 Codex
 
 ```text
-请从这个仓库的 v1.2.0 安装中文 FPGA 工作流：
+请从这个仓库的 v1.2.1 安装中文 FPGA 工作流：
 https://github.com/prasetyarobert205-jpg/codex-fpga-engineering-workflow-zh
 
 用户级部署 13 个 FPGA 角色和 Skill；已有可用 WSL/Python 时准备 wave-mcp 环境，没有 WSL 或缺少 python venv 时先告诉我需要什么。安装系统组件、覆盖已有不同文件或修改全局 PATH 前必须先问我。
@@ -455,7 +455,7 @@ Codex 会先验证包并执行 `bootstrap.ps1 -WhatIf`，再在授权范围内�
 也可以先加入 Plugin Marketplace：
 
 ```bash
-codex plugin marketplace add prasetyarobert205-jpg/codex-fpga-engineering-workflow-zh --ref v1.2.0
+codex plugin marketplace add prasetyarobert205-jpg/codex-fpga-engineering-workflow-zh --ref v1.2.1
 codex plugin add codex-fpga-engineering-workflow-zh@codex-fpga-zh --json
 ```
 

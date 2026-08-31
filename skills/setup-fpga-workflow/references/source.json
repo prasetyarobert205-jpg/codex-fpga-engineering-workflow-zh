@@ -1,7 +1,7 @@
 {
   "schema_version": "fpga-workflow-package-source-1.0",
   "package": "codex-fpga-engineering-workflow-zh",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "repository": "https://github.com/prasetyarobert205-jpg/codex-fpga-engineering-workflow-zh.git",
-  "ref": "v1.2.0"
+  "ref": "v1.2.1"
 }

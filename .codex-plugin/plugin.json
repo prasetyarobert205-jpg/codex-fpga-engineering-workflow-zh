@@ -1,6 +1,6 @@
 {
   "name": "codex-fpga-engineering-workflow-zh",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "可从 GitHub 地址部署的全中文 FPGA/SoC FPGA 多角色证据工程工作流：13 个角色、按需波形观察、官方 IP、三厂商工具流与独立签核。",
   "author": {
     "name": "prasetyarobert205-jpg",

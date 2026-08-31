@@ -1,7 +1,7 @@
 interface:
   display_name: "部署中文 FPGA 工作流"
   short_description: "安全安装 13 个 FPGA 角色、Skill 和可选 wave-mcp 环境"
-  default_prompt: "从当前插件安全部署中文 FPGA 工作流；先预览，禁止静默覆盖或自动安装 WSL。"
+  default_prompt: "使用 $setup-fpga-workflow 安全部署中文 FPGA 工作流；先预览，禁止静默覆盖或自动安装 WSL。"
 
 policy:
-  allow_implicit_invocation: false
+  allow_implicit_invocation: true

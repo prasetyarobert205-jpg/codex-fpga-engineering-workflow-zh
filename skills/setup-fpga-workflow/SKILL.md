@@ -5,7 +5,7 @@ description: 从 codex-fpga-engineering-workflow-zh 插件或 GitHub checkout �
 
 # 部署中文 FPGA 工作流
 
-本 Skill 只负责安装与环境准备，不分析或修改 FPGA 产品工程。不得隐式调用；用户必须明确要求安装、部署、升级、检查环境或卸载。
+本 Skill 只负责安装与环境准备，不分析或修改 FPGA 产品工程。只有用户明确要求安装、部署、升级、检查环境或卸载时才执行；Skill 被自动发现或加载不构成文件写入、环境安装、覆盖或卸载授权。
 
 ## 找到包源码根
 

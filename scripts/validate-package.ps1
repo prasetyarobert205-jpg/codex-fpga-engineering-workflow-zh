@@ -114,7 +114,7 @@ if ($null -ne $marketplace) {
     else {
         $entry = $marketplace.plugins[0]
         if ($entry.name -ne 'codex-fpga-engineering-workflow-zh' -or $entry.source.source -ne 'url') { Add-CheckError 'Marketplace 插件名或 root URL source 不正确。' }
-        if ($entry.source.url -ne 'https://github.com/prasetyarobert205-jpg/codex-fpga-engineering-workflow-zh.git' -or $entry.source.ref -ne 'v1.2.0') { Add-CheckError 'Marketplace URL/ref 未冻结到 v1.2.0。' }
+        if ($entry.source.url -ne 'https://github.com/prasetyarobert205-jpg/codex-fpga-engineering-workflow-zh.git' -or $entry.source.ref -ne 'v1.2.1') { Add-CheckError 'Marketplace URL/ref 未冻结到 v1.2.1。' }
         if ($entry.policy.installation -ne 'AVAILABLE' -or $entry.policy.authentication -ne 'ON_INSTALL' -or [string]::IsNullOrWhiteSpace($entry.category)) { Add-CheckError 'Marketplace policy/category 不完整。' }
     }
 }
@@ -129,7 +129,7 @@ if ($null -ne $capability) {
     if ($capability.skill_contract.files -ne 46 -or $capability.skill_contract.schemas -ne 11 -or $capability.skill_contract.deterministic_scripts -ne 6) {
         Add-CheckError '能力清单 Skill 文件、schema 或脚本计数不正确。'
     }
-    if (@($capability.plugin_distribution.skills).Count -ne 2 -or -not $capability.plugin_distribution.github_marketplace -or $capability.plugin_distribution.marketplace_ref -ne 'v1.2.0' -or $capability.plugin_distribution.bootstrap_scripts -ne 3) { Add-CheckError '能力清单的 Plugin/部署合同不正确。' }
+    if (@($capability.plugin_distribution.skills).Count -ne 2 -or -not $capability.plugin_distribution.github_marketplace -or $capability.plugin_distribution.marketplace_ref -ne 'v1.2.1' -or $capability.plugin_distribution.bootstrap_scripts -ne 3) { Add-CheckError '能力清单的 Plugin/部署合同不正确。' }
     if ($capability.plugin_distribution.default_user_install_overwrite -ne $false -or $capability.plugin_distribution.default_install_wsl -ne $false) { Add-CheckError '能力清单错误放宽了默认覆盖或 WSL 安装。' }
 }
 
@@ -163,9 +163,10 @@ foreach ($token in @('setup-fpga-workflow','bootstrap.ps1','validate-package.ps1
     if ($setupSkill -notmatch [regex]::Escape($token)) { Add-CheckError "部署 Skill 缺少合同：$token" }
 }
 $setupMetadata = Get-Content -LiteralPath (Join-Path $root 'skills\setup-fpga-workflow\agents\openai.yaml') -Raw -Encoding UTF8
-if ($setupMetadata -notmatch 'allow_implicit_invocation:\s*false') { Add-CheckError '部署 Skill 必须禁止隐式调用。' }
+if ($setupMetadata -notmatch 'allow_implicit_invocation:\s*true') { Add-CheckError '部署 Skill 必须可被当前 Codex 新会话发现；实际写入仍由 Skill 内授权门控制。' }
+if ($setupMetadata -notmatch [regex]::Escape('$setup-fpga-workflow')) { Add-CheckError '部署 Skill default_prompt 必须显式包含 $setup-fpga-workflow。' }
 $setupSource = Get-Content -LiteralPath (Join-Path $root 'skills\setup-fpga-workflow\references\source.json') -Raw -Encoding UTF8 | ConvertFrom-Json
-if ($setupSource.package -ne 'codex-fpga-engineering-workflow-zh' -or $setupSource.version -ne $version -or $setupSource.ref -ne 'v1.2.0' -or $setupSource.repository -ne 'https://github.com/prasetyarobert205-jpg/codex-fpga-engineering-workflow-zh.git') { Add-CheckError '部署 Skill 的固定 source manifest 不正确。' }
+if ($setupSource.package -ne 'codex-fpga-engineering-workflow-zh' -or $setupSource.version -ne $version -or $setupSource.ref -ne 'v1.2.1' -or $setupSource.repository -ne 'https://github.com/prasetyarobert205-jpg/codex-fpga-engineering-workflow-zh.git') { Add-CheckError '部署 Skill 的固定 source manifest 不正确。' }
 
 $simulationSchema = Join-Path $root 'skills\run-fpga-workflow\references\schemas\simulation-evidence.schema.json'
 function Test-SimulationSchema([hashtable]$Document) {

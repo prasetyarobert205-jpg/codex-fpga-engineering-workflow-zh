@@ -78,7 +78,7 @@ $targetRoot = Get-NormalizedRoot -SelectedScope $Scope -SelectedProject $Project
 if ($Scope -eq 'User' -and -not [string]::IsNullOrWhiteSpace($env:CODEX_HOME)) {
     $defaultCodexHome = [IO.Path]::GetFullPath((Join-Path $env:USERPROFILE '.codex')).TrimEnd([IO.Path]::DirectorySeparatorChar)
     $configuredCodexHome = [IO.Path]::GetFullPath($env:CODEX_HOME).TrimEnd([IO.Path]::DirectorySeparatorChar)
-    if (-not $configuredCodexHome.Equals($defaultCodexHome, [StringComparison]::OrdinalIgnoreCase)) { throw 'NONDEFAULT_CODEX_HOME_UNVERIFIED：1.2.0 不猜测自定义 Codex home 下的角色/Skill 发现路径。' }
+    if (-not $configuredCodexHome.Equals($defaultCodexHome, [StringComparison]::OrdinalIgnoreCase)) { throw 'NONDEFAULT_CODEX_HOME_UNVERIFIED：当前版本不猜测自定义 Codex home 下的角色/Skill 发现路径。' }
 }
 Assert-SafeInstallRoot -Root $targetRoot
 $manifestRelative = '.codex/codex-fpga-engineering-workflow-zh.install.json'
