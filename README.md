@@ -1,4 +1,4 @@
-# Codex FPGA 中文工程工作流
+# Codex FPGA 基于证据的多FPGA角色并行工程工作流
 
 <div align="center">
 
@@ -19,7 +19,7 @@
 
 ## 这是什么
 
-Codex FPGA 中文工程工作流是一套可以安装到 Codex 中的 FPGA/SoC FPGA 多角色工程系统。
+Codex FPGA 基于证据的多FPGA角色并行工程工作流是一套可以安装到 Codex 中的 FPGA/SoC FPGA 多角色工程系统。
 
 它不是简单地给模型增加一句：
 
